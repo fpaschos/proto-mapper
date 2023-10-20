@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+package entities.schema;
+
+// Entity
+message Entity {
+  uint32 id = 1;
+  int32 nonce = 2;
+  bool valid = 4;
+  string name = 5;
+
+  EntityStatus status = 6;
+  EntityType type = 7;
+}
+
+message EntityWithOptionals {
+  uint32 id = 1;
+  int32 nonce = 2;
+  bool valid = 4;
+  string name = 5;
+  uint32 opt_id = 6;
+  int32 opt_nonce = 7;
+  bool opt_valid = 8;
+  string opt_name = 9;
+  EntityStatus opt_status = 10;
+
+}
+
+enum EntityStatus {
+  STATUS_A = 0;
+  STATUS_B = 1;
+  STATUS_C = 2;
+}
+
+enum EntityType {
+  TYPE_A = 0;
+  TYPE_B = 1;
+  TYPE_C = 2;
+}
+
+
+
+message EntityUuids {
+  string uuid_str = 1;
+  string opt_uuid_str = 2;
+  bytes uuid_bytes = 3;
+  bytes opt_uuid_bytes  = 4;
+}
+
+message NestedEntity {
+  Entity first = 1;
+  Entity second = 2;
+}
+
+message HierarchyEntity {
+  oneof data {
+    Entity first_entity = 1;
+    NestedEntity second_entity = 2;
+  }
+}
+
+message HierarchyEntitySameTypes {
+  oneof data {
+    Entity first_entity = 1;
+    Entity second_entity = 2;
+  }
+}
+

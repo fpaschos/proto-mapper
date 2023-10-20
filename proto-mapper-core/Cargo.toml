@@ -1,0 +1,24 @@
+[package]
+version = "0.1.0"
+name = "proto-mapper-core"
+description = "Internal helper library for proto-mapper"
+repository = "https://github.com/fpaschos/proto-mapper"
+readme = "README.md"
+authors = ["Fotis Paschos"]
+keywords = ["macros", "protobuf", "prost"]
+categories = ["development-tools", "rust-patterns"]
+homepage = "https://github.com/fpaschos/proto-mapper"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dev-dependencies]
+colored-diff = "0.2.3"
+
+[dependencies]
+anyhow = "1.0.75"
+darling = "0.20.3"
+heck = "0.4.1"
+proc-macro2 = "1.0.67"
+quote = "1.0.33"
+syn = {version = "2.0.37", features = ["full", "fold"] }
