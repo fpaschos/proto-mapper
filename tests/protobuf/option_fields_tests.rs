@@ -1,5 +1,5 @@
 use proto_mapper::{derive::ProtoMap, ProtoMap, ProtoMapScalar, ProtoScalar};
-mod proto;
+use crate::proto;
 
 #[derive(Debug, ProtoMap, Eq, PartialEq, Default)]
 #[proto_map(source = "proto::protobuf::Entity")]

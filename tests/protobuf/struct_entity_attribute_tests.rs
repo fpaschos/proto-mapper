@@ -4,7 +4,7 @@ use proto_mapper::{
     ProtoMapScalar
 };
 use std::default::Default;
-mod proto;
+use crate::proto;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, ProtoMap)]
 #[proto_map(

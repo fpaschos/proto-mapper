@@ -1,8 +1,9 @@
 use proto_mapper::{ProtoMap, ProtoMapScalar, ProtoScalar};
 use protobuf::Enum;
+use crate::proto;
 
 /// Fully expanded and manual experiments (these used to build the macros and the library traits synergy)
-mod proto;
+
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum EntityStatus {

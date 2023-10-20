@@ -1,7 +1,8 @@
 use anyhow::Error;
 use proto_mapper::{derive::ProtoMap, ProtoMap, ProtoMapScalar};
+use crate::proto;
 
-mod proto;
+
 #[derive(Debug, Clone, ProtoMap, PartialEq)]
 #[proto_map(source = "proto::protobuf::Entity")]
 struct Entity {
@@ -53,6 +54,7 @@ fn enumeration_round_trips() {
 
 #[test]
 fn hierarchy_entity_round_trips() {
+
     let entity = Entity {
         id: 1,
         nonce: 10,

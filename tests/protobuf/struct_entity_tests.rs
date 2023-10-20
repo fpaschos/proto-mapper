@@ -1,7 +1,7 @@
 use proto_mapper::derive::ProtoMap;
 use proto_mapper::{ProtoMap, ProtoMapScalar};
 use std::default::Default;
-mod proto;
+use crate::proto;
 
 #[derive(Debug, ProtoMap, Eq, PartialEq)]
 #[proto_map(source = "proto::protobuf::Entity")]
