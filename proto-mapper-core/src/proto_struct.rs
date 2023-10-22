@@ -72,6 +72,8 @@ impl StructField {
     }
 
     // TODO use struct attrs for rename_all
+    /// Specific `protobuf` feature implementation of struct filed getter method.
+    #[cfg(feature = "protobuf")]
     pub(crate) fn implement_getter(&self, _struct_attrs: &StructAttrs) -> TokenStream {
         // Fast handle skip attribute
         if let Some(FieldAttrs { skip: true, .. }) = &self.attrs {
@@ -80,9 +82,9 @@ impl StructField {
 
         //Check field rename
         let proto_field_setter = if let Some(FieldAttrs {
-            rename: Some(new_name),
-            ..
-        }) = &self.attrs
+                                                 rename: Some(new_name),
+                                                 ..
+                                             }) = &self.attrs
         {
             let field_name = get_proto_field_name(new_name.as_str(), Some('_'));
             format_ident!("set_{}", field_name)
@@ -105,6 +107,46 @@ impl StructField {
             // Non optional field just a setter
             quote! {
                 proto.#proto_field_setter(#to_proto_method(&self.#struct_field).into());
+            }
+        }
+    }
+
+    // TODO use struct attrs for rename_all
+    /// Specific `prost` feature implementation of struct filed getter method.
+    #[cfg(feature = "prost")]
+    pub(crate) fn implement_getter(&self, _struct_attrs: &StructAttrs) -> TokenStream {
+        // Fast handle skip attribute
+        if let Some(FieldAttrs { skip: true, .. }) = &self.attrs {
+            return quote! {};
+        }
+
+        //Check field rename
+        let proto_field_setter = if let Some(FieldAttrs {
+                                                 rename: Some(new_name),
+                                                 ..
+                                             }) = &self.attrs
+        {
+            let field_name = get_proto_field_name(new_name.as_str(), Some('_'));
+            format_ident!("{}", field_name)
+        } else {
+            self.name.clone()
+        };
+
+        let struct_field = &self.name;
+
+        let to_proto_method = self.determine_to_proto_method();
+
+        if self.ty.is_optional() {
+            // Optional field setter
+            quote! {
+                if let Some(value) = &self.#struct_field {
+                    proto.#proto_field_setter = #to_proto_method(value).into();
+                }
+            }
+        } else {
+            // Non optional field just a setter
+            quote! {
+                proto.#proto_field_setter = #to_proto_method(&self.#struct_field).into();
             }
         }
     }
@@ -155,6 +197,8 @@ impl StructField {
     }
 
     // TODO use struct attrs for rename_all
+    /// Specific `protobuf` feature implementation of struct filed setter method.
+    #[cfg(feature="protobuf")]
     pub(crate) fn implement_setter(&self, _struct_attrs: &StructAttrs) -> TokenStream {
         let struct_field = &self.name;
 
@@ -166,9 +210,9 @@ impl StructField {
 
         //Check field rename
         let proto_field = if let Some(FieldAttrs {
-            rename: Some(new_name),
-            ..
-        }) = &self.attrs
+                                          rename: Some(new_name),
+                                          ..
+                                      }) = &self.attrs
         {
             let field_name = get_proto_field_name(new_name.as_str(), None);
             format_ident!("{}", field_name)
@@ -199,6 +243,58 @@ impl StructField {
             // Non optional field just a setter
             quote! {
                 #struct_field: #from_proto_method(proto.#proto_field_getter().to_owned())?,
+            }
+        }
+    }
+
+
+    // TODO use struct attrs for rename_all
+    /// Specific `prost` feature implementation of struct filed setter method.
+    #[cfg(feature = "prost")]
+    pub(crate) fn implement_setter(&self, _struct_attrs: &StructAttrs) -> TokenStream {
+        let struct_field = &self.name;
+
+        // Fast fail skip attribute
+        if let Some(FieldAttrs { skip: true, .. }) = &self.attrs {
+            // Default struct setter for the skipped fields.
+            return quote! { #struct_field: Default::default(), };
+        }
+
+        //Check field rename
+        let proto_field = if let Some(FieldAttrs {
+                                          rename: Some(new_name),
+                                          ..
+                                      }) = &self.attrs
+        {
+            let field_name = get_proto_field_name(new_name.as_str(), None);
+            format_ident!("{}", field_name)
+        } else {
+            struct_field.clone() // Here proto and struct field are the same
+        };
+
+        let from_proto_method = self.determine_from_proto_method();
+
+        let proto_field_getter = format_ident!("{}", proto_field);
+
+        if self.ty.is_optional() {
+            // Determine the appropriate has_value method
+            let has_value_method = self.determine_has_value_method(&proto_field);
+
+            // In case of optional check value is empty via `has_value_method`
+            quote! {
+                #struct_field: {
+                    let value = proto.#proto_field_getter.to_owned();
+                    if #has_value_method {
+                        Some(#from_proto_method(value)?)
+                    } else {
+                        None
+                    }
+                },
+            }
+        } else {
+            // Non optional field just a setter
+            quote! {
+                #struct_field: #from_proto_method(proto.#proto_field_getter.to_owned())?,
             }
         }
     }
