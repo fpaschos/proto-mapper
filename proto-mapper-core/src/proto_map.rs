@@ -1,19 +1,11 @@
 use crate::proto_enum::Enum;
 use crate::proto_struct::Struct;
-use darling::FromDeriveInput;
 use heck::ToSnakeCase;
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote, ToTokens};
 use syn::{Data, DeriveInput};
 
-pub fn implement_proto_map(input: TokenStream) -> TokenStream {
-    let input: DeriveInput = syn::parse(input.into()).unwrap();
-    let input =
-        ProtoMap::from_derive_input(&input).unwrap_or_else(|e| panic!("ProtoConvert: {}", e));
-    quote! { #input }
-}
-
-enum ProtoMap {
+pub(crate) enum ProtoMap {
     Struct(Struct),
     Enum(Enum),
 }
@@ -25,12 +17,15 @@ impl ProtoMap {
             Self::Enum(inner) => &inner.name,
         }
     }
-    fn implement_proto_convert(&self) -> TokenStream {
+    fn implement_proto_map(&self) -> TokenStream {
         match self {
             Self::Struct(data) => data.implement_proto_map(),
             Self::Enum(data) => data.implement_proto_map(),
         }
     }
+
+
+
 }
 
 impl ToTokens for ProtoMap {
@@ -40,7 +35,7 @@ impl ToTokens for ProtoMap {
             self.name().to_string().to_snake_case()
         );
 
-        let proto_convert = self.implement_proto_convert();
+        let proto_convert = self.implement_proto_map();
 
         let expanded = quote! {
             mod #mod_name {

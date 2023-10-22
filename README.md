@@ -20,7 +20,6 @@ This library:
  - supports prost (WIP)
 
 
-
 ### Related Projects
 - [Github: protobuf-convert](https://github.com/aleksuss/protobuf-convert/blob/master/README.md)
 

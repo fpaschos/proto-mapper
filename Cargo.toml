@@ -31,3 +31,7 @@ protobuf = "3.3.0"
 [build-dependencies]
 protobuf-codegen = "3.3.0"
 prost-build = "0.12.1"
+
+[features]
+prost = ["proto-mapper-derive/prost"]
+protobuf = ["proto-mapper-derive/protobuf"]

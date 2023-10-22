@@ -1,5 +1,9 @@
+use darling::FromDeriveInput;
 use heck::{ToShoutySnakeCase, ToSnakeCase};
-use syn::{Attribute, Meta};
+use proc_macro2::TokenStream;
+use quote::quote;
+use syn::{Attribute, DeriveInput, Meta};
+use crate::proto_map::ProtoMap;
 
 pub mod proto_map;
 mod proto_enum;
@@ -13,6 +17,13 @@ const PROTO_MAP_ATTRIBUTE: &str = "proto_map";
 const SNAKE_CASE_ATTRIBUTE_VALUE: &str = "snake_case";
 
 const SCREAMING_SNAKE_CASE_ATTRIBUTE_VALUE: &str = "STREAMING_SNAKE_CASE";
+
+pub fn implement_proto_map(input: TokenStream) -> TokenStream {
+    let input: DeriveInput = syn::parse(input.into()).unwrap();
+    let input =
+        ProtoMap::from_derive_input(&input).unwrap_or_else(|e| panic!("ProtoConvert: {}", e));
+    quote! { #input }
+}
 
 pub(crate) fn find_proto_map_meta(attrs: &[Attribute]) -> Option<&Meta> {
     attrs
