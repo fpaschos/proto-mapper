@@ -10,7 +10,6 @@ fn main() {
         .pure()
         .out_dir(&out_dir)
         .input("tests/proto/entities.proto")
-        .input("tests/proto/timestamps.proto")
         .include("tests/proto")
         .customize(
             protobuf_codegen::Customize::default().generate_accessors(true), // .gen_mod_rs(true),
@@ -20,7 +19,6 @@ fn main() {
     // Override the mod file to include all the generated protos
     let mod_file_content = r#"//@generated
     pub mod entities;
-    pub mod timestamps;
     "#;
     let mod_file_path = Path::new(&out_dir).join("mod.rs");
 
