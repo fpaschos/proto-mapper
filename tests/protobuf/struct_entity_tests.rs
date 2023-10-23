@@ -1,13 +1,13 @@
+use crate::proto;
 use proto_mapper::derive::ProtoMap;
 use proto_mapper::{ProtoMap, ProtoMapScalar};
 use std::default::Default;
-use crate::proto;
 
 #[derive(Debug, Clone, Copy, PartialEq, ProtoMap)]
 #[proto_map(
-source = "proto::protobuf::EntityStatus",
-enumeration,
-rename_variants = "STREAMING_SNAKE_CASE"
+    source = "proto::protobuf::EntityStatus",
+    enumeration,
+    rename_variants = "STREAMING_SNAKE_CASE"
 )]
 enum EntityStatus {
     StatusA,

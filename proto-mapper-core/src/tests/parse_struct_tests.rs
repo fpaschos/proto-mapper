@@ -1,8 +1,9 @@
+use crate::attributes::StructAttrs;
 use darling::FromMeta;
 use quote::quote;
 use syn::{Data, DeriveInput};
 
-use crate::proto_struct::{StructAttrs, StructField};
+use crate::structs::StructField;
 use crate::types::{ScalarType, Ty};
 
 #[test]

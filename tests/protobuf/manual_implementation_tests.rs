@@ -1,9 +1,8 @@
+use crate::proto;
 use proto_mapper::{ProtoMap, ProtoMapScalar, ProtoScalar};
 use protobuf::Enum;
-use crate::proto;
 
 /// Fully expanded and manual experiments (these used to build the macros and the library traits synergy)
-
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum EntityStatus {
@@ -271,7 +270,7 @@ fn entity_test_round_trip() {
 }
 
 #[test]
-fn test_entity_with_optionals_round_trips() {
+fn test_entity_with_options_round_trips() {
     let original = ScalarEntityOptions {
         uint32_f: Some(1),
         int32_f: Some(-10),

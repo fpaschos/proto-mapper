@@ -182,7 +182,6 @@ impl Enum {
             }
         }
     }
-
     fn get_proto_variant_name(&self, variant: &EnumVariant) -> String {
         if let Some(rename_variants) = self.attrs.rename_variants.as_ref() {
             rename_item(&variant.name.to_string(), rename_variants).unwrap()

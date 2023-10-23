@@ -1,10 +1,6 @@
-use proto_mapper::{
-    derive::ProtoMap,
-    ProtoMap,
-    ProtoMapScalar
-};
-use std::default::Default;
 use crate::proto;
+use proto_mapper::{derive::ProtoMap, ProtoMap, ProtoMapScalar};
+use std::default::Default;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, ProtoMap)]
 #[proto_map(
@@ -74,6 +70,6 @@ fn proto_entity_round_trip() {
     let e = ScalarEntity::from_proto(original.clone()).unwrap();
     let tested = e.to_proto();
 
-    original.string_f= Default::default(); // string field is skipped so default
+    original.string_f = Default::default(); // string field is skipped so default
     assert_eq!(tested, original);
 }

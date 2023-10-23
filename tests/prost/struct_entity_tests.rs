@@ -1,5 +1,5 @@
-use proto_mapper::{derive::ProtoMap, ProtoMap, ProtoMapScalar};
 use crate::proto;
+use proto_mapper::{derive::ProtoMap, ProtoMap, ProtoMapScalar};
 
 // TODO support enumeration
 // #[derive(Debug, Clone, Copy, PartialEq, ProtoMap)]

@@ -1,5 +1,5 @@
-use proto_mapper::{ProtoMap, ProtoMapScalar, ProtoScalar};
 use crate::proto;
+use proto_mapper::{ProtoMap, ProtoMapScalar, ProtoScalar};
 
 /// Fully expanded and manual experiments (these used to build the macros and the library traits synergy)
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
@@ -25,7 +25,10 @@ impl ProtoMapScalar<i32> for EntityStatus {
             _ if proto == proto::prost::EntityStatus::StatusA as i32 => Ok(Self::StatusA),
             _ if proto == proto::prost::EntityStatus::StatusB as i32 => Ok(Self::StatusB),
             _ if proto == proto::prost::EntityStatus::StatusC as i32 => Ok(Self::StatusC),
-            _ => Err(anyhow::anyhow!(format!("Unable to match enumeration value {} to EntityStatus", proto)))
+            _ => Err(anyhow::anyhow!(format!(
+                "Unable to match enumeration value {} to EntityStatus",
+                proto
+            ))),
         }
     }
 }
@@ -39,7 +42,6 @@ struct ScalarEntity {
     pub bytes_f: Vec<u8>,
     pub status: EntityStatus,
 }
-
 
 // Example of manual implementation of entity with scalars and enumerations
 impl ProtoMap for ScalarEntity {
@@ -80,92 +82,96 @@ struct ScalarEntityOptions {
     pub status: Option<EntityStatus>,
 }
 
-//
-// impl ProtoMap for EntityWithOptionals {
-//     type ProtoStruct = proto::protobuf::EntityWithOptionals;
-//     fn to_proto(&self) -> Self::ProtoStruct {
-//         let mut proto = proto::protobuf::EntityWithOptionals::default();
-//         proto.set_id(ProtoMapScalar::to_scalar(&self.id));
-//         proto.set_nonce(ProtoMapScalar::to_scalar(&self.nonce));
-//         proto.set_valid(ProtoMapScalar::to_scalar(&self.valid));
-//         proto.set_name(ProtoMapScalar::to_scalar(&self.name));
-//
-//         // Only if there is value other default
-//         if let Some(value) = &self.opt_id {
-//             proto.set_opt_id(ProtoMapScalar::to_scalar(value));
-//         }
-//
-//         // Only if there is value other default
-//         if let Some(value) = &self.opt_nonce {
-//             proto.set_opt_nonce(ProtoMapScalar::to_scalar(value));
-//         }
-//
-//         if let Some(value) = &self.opt_valid {
-//             proto.set_opt_valid(ProtoMapScalar::to_scalar(value));
-//         }
-//
-//         if let Some(value) = &self.opt_name {
-//             proto.set_opt_name(ProtoMapScalar::to_scalar(value));
-//         }
-//
-//         if let Some(value) = &self.opt_status {
-//             proto.set_opt_status(ProtoMap::to_proto(value));
-//         }
-//         proto
-//     }
-//     fn from_proto(proto: Self::ProtoStruct) -> Result<Self, anyhow::Error> {
-//         let inner = Self {
-//             id: ProtoMapScalar::from_scalar(proto.id().to_owned())?,
-//             nonce: ProtoMapScalar::from_scalar(proto.nonce().to_owned())?,
-//             valid: ProtoMapScalar::from_scalar(proto.valid().to_owned())?,
-//             name: ProtoMapScalar::from_scalar(proto.name().to_owned())?,
-//             // Special case for options
-//             opt_id: {
-//                 let v = proto.opt_id().to_owned();
-//                 if ProtoScalar::has_value(&v) {
-//                     Some(ProtoMapScalar::from_scalar(v)?)
-//                 } else {
-//                     None
-//                 }
-//             },
-//             opt_nonce: {
-//                 let v = proto.opt_nonce().to_owned();
-//                 if ProtoScalar::has_value(&v) {
-//                     Some(ProtoMapScalar::from_scalar(v)?)
-//                 } else {
-//                     None
-//                 }
-//             },
-//             opt_valid: {
-//                 let v = proto.opt_valid().to_owned();
-//                 if ProtoScalar::has_value(&v) {
-//                     Some(ProtoMapScalar::from_scalar(v)?)
-//                 } else {
-//                     None
-//                 }
-//             },
-//             opt_name: {
-//                 let v = proto.opt_name().to_owned();
-//                 if ProtoScalar::has_value(&v) {
-//                     Some(ProtoMapScalar::from_scalar(v)?)
-//                 } else {
-//                     None
-//                 }
-//             },
-//             // Special case for enumerations
-//             opt_status: {
-//                 let v = proto.opt_status().to_owned();
-//                 // convert enum value to i32 in order to check ProtoPrimitive value
-//                 if ProtoScalar::has_value(&v.value()) {
-//                     Some(ProtoMap::from_proto(v)?)
-//                 } else {
-//                     None
-//                 }
-//             },
-//         };
-//         Ok(inner)
-//     }
-// }
+impl ProtoMap for ScalarEntityOptions {
+    type ProtoStruct = proto::prost::ScalarEntity;
+    fn to_proto(&self) -> Self::ProtoStruct {
+        let mut proto = proto::prost::ScalarEntity::default();
+
+        // Only if there is value other default
+        if let Some(value) = &self.uint32_f {
+            proto.uint32_f = ProtoMapScalar::to_scalar(value);
+        }
+
+        // Only if there is value other default
+        if let Some(value) = &self.int32_f {
+            proto.int32_f = ProtoMapScalar::to_scalar(value);
+        }
+
+        if let Some(value) = &self.bool_f {
+            proto.bool_f = ProtoMapScalar::to_scalar(value);
+        }
+
+        if let Some(value) = &self.string_f {
+            proto.string_f = ProtoMapScalar::to_scalar(value);
+        }
+
+        if let Some(value) = &self.bytes_f {
+            proto.bytes_f = ProtoMapScalar::to_scalar(value);
+        }
+
+        if let Some(value) = &self.status {
+            proto.status = ProtoMapScalar::to_scalar(value);
+        }
+
+        proto
+    }
+    fn from_proto(proto: Self::ProtoStruct) -> Result<Self, anyhow::Error> {
+        let inner = Self {
+            // Special case for options
+            uint32_f: {
+                let value = proto.uint32_f;
+                if ProtoScalar::has_value(&value) {
+                    Some(ProtoMapScalar::from_scalar(value)?)
+                } else {
+                    None
+                }
+            },
+            int32_f: {
+                let value = proto.int32_f;
+                if ProtoScalar::has_value(&value) {
+                    Some(ProtoMapScalar::from_scalar(value)?)
+                } else {
+                    None
+                }
+            },
+            bool_f: {
+                let value = proto.bool_f;
+                if ProtoScalar::has_value(&value) {
+                    Some(ProtoMapScalar::from_scalar(value)?)
+                } else {
+                    None
+                }
+            },
+            string_f: {
+                let value = proto.string_f;
+                if ProtoScalar::has_value(&value) {
+                    Some(ProtoMapScalar::from_scalar(value)?)
+                } else {
+                    None
+                }
+            },
+            bytes_f: {
+                let value = proto.bytes_f;
+                if ProtoScalar::has_value(&value) {
+                    Some(ProtoMapScalar::from_scalar(value)?)
+                } else {
+                    None
+                }
+            },
+
+            // Special case for enumerations
+            status: {
+                let value = proto.status;
+                if ProtoScalar::has_value(&value) {
+                    Some(ProtoMapScalar::from_scalar(value)?)
+                } else {
+                    None
+                }
+            },
+        };
+        Ok(inner)
+    }
+}
 #[derive(Debug, Clone, PartialEq)]
 pub struct NestedEntity {
     first: ScalarEntity,
@@ -176,8 +182,12 @@ impl ProtoMap for NestedEntity {
     type ProtoStruct = proto::prost::NestedEntity;
     fn to_proto(&self) -> Self::ProtoStruct {
         let mut proto = proto::prost::NestedEntity::default();
-        proto.first = Some(ProtoMap::to_proto(&self.first).into());
-        proto.second = self.second.as_ref().map(|value| ProtoMap::to_proto(value));
+        // Only if there is value other default
+        proto.first = Some(ProtoMap::to_proto(&self.first));
+
+        if let Some(value) = &self.second {
+            proto.second = Some(ProtoMap::to_proto(value));
+        }
 
         proto
     }
@@ -191,7 +201,7 @@ impl ProtoMap for NestedEntity {
                 }
             },
             second: {
-                if let Some(value) =  proto.second {
+                if let Some(value) = proto.second {
                     Some(ProtoMap::from_proto(value)?)
                 } else {
                     None
@@ -236,43 +246,38 @@ fn proto_entity_test_round_trip() {
 
     assert_eq!(tested, original);
 }
-//
-// #[test]
-// fn test_entity_with_optionals_round_trips() {
-//     let original = EntityWithOptionals {
-//         id: 1,
-//         nonce: 10,
-//         valid: true,
-//         name: "Foo".into(),
-//         opt_id: None,
-//         opt_nonce: None,
-//         opt_valid: None,
-//         opt_name: None,
-//         opt_status: None,
-//     };
-//
-//     let p = original.to_proto();
-//     let tested = EntityWithOptionals::from_proto(p).unwrap();
-//
-//     assert_eq!(tested, original);
-//
-//     let original = EntityWithOptionals {
-//         id: 1,
-//         nonce: 10,
-//         valid: true,
-//         name: "Foo".into(),
-//         opt_id: Some(1),
-//         opt_nonce: Some(2),
-//         opt_valid: Some(true),
-//         opt_name: Some("Foo1".into()),
-//         opt_status: Some(EntityStatus::StatusC),
-//     };
-//
-//     let p = original.to_proto();
-//     let tested = EntityWithOptionals::from_proto(p).unwrap();
-//
-//     assert_eq!(tested, original);
-// }
+#[test]
+fn test_entity_with_options_round_trips() {
+    let original = ScalarEntityOptions {
+        uint32_f: Some(1),
+        int32_f: Some(-10),
+        bool_f: Some(true),
+        string_f: Some("Foo".into()),
+        bytes_f: Some("Foo".as_bytes().to_vec()),
+        status: Some(EntityStatus::StatusC),
+    };
+
+    let p = original.to_proto();
+    let tested = ScalarEntityOptions::from_proto(p).unwrap();
+
+    assert_eq!(tested, original);
+
+    let original = ScalarEntityOptions {
+        uint32_f: None,
+        int32_f: None,
+        bool_f: None,
+        string_f: None,
+        bytes_f: None,
+        status: None,
+    };
+
+    let p = original.to_proto();
+    let tested = ScalarEntityOptions::from_proto(p).unwrap();
+
+    assert_eq!(tested, original);
+
+    assert_eq!(tested, original);
+}
 //
 //
 //

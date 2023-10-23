@@ -1,21 +1,21 @@
+use crate::proto_map::ProtoMap;
 use darling::FromDeriveInput;
 use heck::{ToShoutySnakeCase, ToSnakeCase};
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Attribute, DeriveInput, Meta};
-use crate::proto_map::ProtoMap;
 
-pub mod proto_map;
+mod attributes;
 mod proto_enum;
-mod proto_struct;
+mod proto_map;
+mod structs;
+mod types;
 
 #[cfg(test)]
 mod tests;
-mod types;
 
 const PROTO_MAP_ATTRIBUTE: &str = "proto_map";
 const SNAKE_CASE_ATTRIBUTE_VALUE: &str = "snake_case";
-
 const SCREAMING_SNAKE_CASE_ATTRIBUTE_VALUE: &str = "STREAMING_SNAKE_CASE";
 
 pub fn implement_proto_map(input: TokenStream) -> TokenStream {

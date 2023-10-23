@@ -1,21 +1,20 @@
 use crate::proto_enum::Enum;
-use crate::proto_struct::Struct;
+use crate::structs::Struct;
 use proc_macro2::TokenStream;
 use syn::{Data, DeriveInput};
 
-#[cfg(feature="protobuf")]
+#[cfg(feature = "protobuf")]
 mod implement_enum_protobuf_tests;
 
-#[cfg(feature="protobuf")]
+#[cfg(feature = "protobuf")]
 mod implement_struct_protobuf_tests;
 
-#[cfg(feature="prost")]
+#[cfg(feature = "prost")]
 mod implement_struct_prost_tests;
 
 mod parse_enum_tests;
 mod parse_struct_tests;
 mod type_scanner_tests;
-
 
 #[cfg(test)]
 pub(crate) fn from_derive_input_struct(input: &DeriveInput) -> darling::Result<Struct> {

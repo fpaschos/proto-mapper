@@ -1,5 +1,5 @@
 use crate::proto_enum::Enum;
-use crate::proto_struct::Struct;
+use crate::structs::Struct;
 use heck::ToSnakeCase;
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote, ToTokens};
@@ -23,17 +23,11 @@ impl ProtoMap {
             Self::Enum(data) => data.implement_proto_map(),
         }
     }
-
-
-
 }
 
 impl ToTokens for ProtoMap {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let mod_name = format_ident!(
-            "proto_map_impl_{}",
-            self.name().to_string().to_snake_case()
-        );
+        let mod_name = format_ident!("proto_map_impl_{}", self.name().to_string().to_snake_case());
 
         let proto_convert = self.implement_proto_map();
 

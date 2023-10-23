@@ -1,6 +1,5 @@
-use proto_mapper::{derive::ProtoMap, ProtoMap, ProtoMapScalar};
 use crate::proto;
-
+use proto_mapper::{derive::ProtoMap, ProtoMap, ProtoMapScalar};
 
 #[derive(Debug, Clone, ProtoMap, PartialEq)]
 #[proto_map(source = "proto::protobuf::ScalarEntity")]
@@ -54,7 +53,6 @@ fn enumeration_round_trips() {
 
 #[test]
 fn hierarchy_entity_round_trips() {
-
     let entity = ScalarEntity {
         uint32_f: 1,
         int32_f: 10,
@@ -99,4 +97,3 @@ fn hierarchy_entity_round_trips() {
 }
 
 // TODO move to manual_implementation_tests
-

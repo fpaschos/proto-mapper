@@ -25,16 +25,16 @@ fn implement_struct_scalar_types_test() {
             fn to_proto(&self) -> Self::ProtoStruct {
                 let mut proto = proto::Test::default();
 
-                proto.id = ProtoMapScalar::to_scalar(&self.id).into();
-                proto.valid = ProtoMapScalar::to_scalar(&self.valid).into();
-                proto.bytes = ProtoMapScalar::to_scalar(&self.bytes).into();
+                proto.id = ProtoMapScalar::to_scalar(&self.id);
+                proto.valid = ProtoMapScalar::to_scalar(&self.valid);
+                proto.bytes = ProtoMapScalar::to_scalar(&self.bytes);
 
                 if let Some(value) = &self.opt_name {
-                    proto.opt_name = ProtoMapScalar::to_scalar(value).into();
+                    proto.opt_name = ProtoMapScalar::to_scalar(value);
                 }
 
                 if let Some(value) = &self.opt_bytes {
-                    proto.opt_bytes = ProtoMapScalar::to_scalar(value).into();
+                    proto.opt_bytes = ProtoMapScalar::to_scalar(value);
                 }
 
                 proto

@@ -1,5 +1,5 @@
-mod uuid;
 mod proto_mapper;
+mod uuid;
 
 pub use proto_mapper::*;
 pub use uuid::*;
