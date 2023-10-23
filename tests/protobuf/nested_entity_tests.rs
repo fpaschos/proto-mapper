@@ -3,28 +3,28 @@ use proto_mapper::{ProtoMap, ProtoMapScalar};
 use crate::proto;
 
 #[derive(Debug, Clone, ProtoMap, Eq, PartialEq)]
-#[proto_map(source = "proto::protobuf::Entity")]
-struct Entity {
-    pub id: u32,
-    pub nonce: i32,
-    pub valid: bool,
-    pub name: String,
+#[proto_map(source = "proto::protobuf::ScalarEntity")]
+struct ScalarEntity {
+    pub uint32_f: u32,
+    pub int32_f: i32,
+    pub bool_f: bool,
+    pub string_f: String,
 }
 
 #[derive(Debug, ProtoMap, Eq, PartialEq)]
 #[proto_map(source = "proto::protobuf::NestedEntity")]
 struct NestedEntity {
-    pub first: Entity,
-    pub second: Entity,
+    pub first: ScalarEntity,
+    pub second: ScalarEntity,
 }
 
 #[test]
 fn nested_entity_round_trip() {
-    let entity = Entity {
-        id: 1,
-        nonce: 10,
-        valid: true,
-        name: "Foo".into(),
+    let entity = ScalarEntity {
+        uint32_f: 1,
+        int32_f: 10,
+        bool_f: true,
+        string_f: "Foo".into(),
     };
 
     let original = NestedEntity {

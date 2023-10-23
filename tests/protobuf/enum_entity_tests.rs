@@ -1,23 +1,23 @@
-use anyhow::Error;
 use proto_mapper::{derive::ProtoMap, ProtoMap, ProtoMapScalar};
 use crate::proto;
 
 
 #[derive(Debug, Clone, ProtoMap, PartialEq)]
-#[proto_map(source = "proto::protobuf::Entity")]
-struct Entity {
-    pub id: u32,
-    pub nonce: i32,
-    pub valid: bool,
-    pub name: String,
+#[proto_map(source = "proto::protobuf::ScalarEntity")]
+struct ScalarEntity {
+    pub uint32_f: u32,
+    pub int32_f: i32,
+    pub bool_f: bool,
+    pub string_f: String,
+    pub bytes_f: Vec<u8>,
     pub status: EntityStatus,
 }
 
 #[derive(Debug, ProtoMap, PartialEq)]
 #[proto_map(source = "proto::protobuf::NestedEntity")]
 struct NestedEntity {
-    pub first: Entity,
-    pub second: Entity,
+    pub first: ScalarEntity,
+    pub second: ScalarEntity,
 }
 
 #[derive(Debug, ProtoMap, PartialEq)]
@@ -27,7 +27,7 @@ struct NestedEntity {
     rename_variants = "snake_case"
 )]
 enum HierarchyEntity {
-    FirstEntity(Entity),
+    FirstEntity(ScalarEntity),
     SecondEntity(NestedEntity),
 }
 
@@ -55,11 +55,12 @@ fn enumeration_round_trips() {
 #[test]
 fn hierarchy_entity_round_trips() {
 
-    let entity = Entity {
-        id: 1,
-        nonce: 10,
-        valid: true,
-        name: "Foo".into(),
+    let entity = ScalarEntity {
+        uint32_f: 1,
+        int32_f: 10,
+        bool_f: true,
+        string_f: "Foo".into(),
+        bytes_f: "Foo".as_bytes().to_vec(),
         status: EntityStatus::StatusC,
     };
 
@@ -69,19 +70,21 @@ fn hierarchy_entity_round_trips() {
     let tested = HierarchyEntity::from_proto(p).unwrap();
     assert_eq!(tested, original);
 
-    let first = Entity {
-        id: 2,
-        nonce: 20,
-        valid: false,
-        name: "Entity2".into(),
-        status: EntityStatus::StatusB,
+    let first = ScalarEntity {
+        uint32_f: 1,
+        int32_f: -10,
+        bool_f: true,
+        string_f: "Foo1".into(),
+        bytes_f: "Foo1".as_bytes().to_vec(),
+        status: EntityStatus::StatusC,
     };
 
-    let second = Entity {
-        id: 2,
-        nonce: 30,
-        valid: true,
-        name: "Entity3".into(),
+    let second = ScalarEntity {
+        uint32_f: 2,
+        int32_f: -20,
+        bool_f: false,
+        string_f: "Foo2".into(),
+        bytes_f: "Foo2".as_bytes().to_vec(),
         status: EntityStatus::StatusA,
     };
 
@@ -96,53 +99,4 @@ fn hierarchy_entity_round_trips() {
 }
 
 // TODO move to manual_implementation_tests
-// Just for reference purposes implement the interface manually
-#[derive(Debug, PartialEq)]
-enum HierarchyEntityManual {
-    FirstEntity(Entity),
-    SecondEntity(NestedEntity),
-}
-impl ProtoMap for HierarchyEntityManual {
-    type ProtoStruct = proto::protobuf::HierarchyEntity;
-    fn to_proto(&self) -> proto::protobuf::HierarchyEntity {
-        let mut inner = proto::protobuf::HierarchyEntity::default();
-        match self {
-            HierarchyEntityManual::FirstEntity(value) => inner.set_first_entity(value.to_proto()),
-            HierarchyEntityManual::SecondEntity(value) => inner.set_second_entity(value.to_proto()),
-        }
-        inner
-    }
 
-    fn from_proto(proto: proto::protobuf::HierarchyEntity) -> Result<Self, Error> {
-        match proto.data {
-            Some(proto::protobuf::hierarchy_entity::Data::FirstEntity(v)) => {
-                Entity::from_proto(v).map(HierarchyEntityManual::FirstEntity)
-            }
-            Some(proto::protobuf::hierarchy_entity::Data::SecondEntity(v)) => {
-                NestedEntity::from_proto(v).map(HierarchyEntityManual::SecondEntity)
-            }
-
-            None => Err(anyhow::anyhow!(
-                "Failed to convert HierarchyEntityManual from protobuf"
-            )),
-        }
-    }
-}
-
-#[test]
-fn manual_hierarchy_entity_round_trip() {
-    let entity = Entity {
-        id: 1,
-        nonce: 10,
-        valid: true,
-        name: "Foo".into(),
-        status: EntityStatus::StatusB,
-    };
-
-    let original = HierarchyEntityManual::FirstEntity(entity);
-
-    let p = original.to_proto();
-    let tested = HierarchyEntityManual::from_proto(p).unwrap();
-
-    assert_eq!(tested, original);
-}

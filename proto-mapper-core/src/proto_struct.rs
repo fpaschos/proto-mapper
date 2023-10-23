@@ -47,8 +47,11 @@ impl StructField {
         if let Some(attrs) = &self.attrs {
             match &attrs.with {
                 // Override self.ty for scalar, enumeration properties
-                None if attrs.scalar || attrs.enumeration => {
+                None if attrs.scalar => {
                     return quote! { ProtoMapScalar::to_scalar };
+                }
+                None if attrs.enumeration => {
+                    return quote! { ProtoMap::to_proto };
                 }
                 // Override implementation for with module  scalar
                 Some(with) if attrs.scalar || attrs.enumeration || self.ty.is_scalar() => {
@@ -156,8 +159,11 @@ impl StructField {
         if let Some(attrs) = &self.attrs {
             match &attrs.with {
                 // Override self.ty for scalar, enumeration properties
-                None if attrs.scalar || attrs.enumeration => {
+                None if attrs.scalar => {
                     return quote! { ProtoMapScalar::from_scalar };
+                }
+                None if attrs.enumeration => {
+                    return quote! {ProtoMap::from_proto}
                 }
                 // Override implementation for with module  scalar
                 Some(with) if attrs.scalar || attrs.enumeration || self.ty.is_scalar() => {
@@ -182,14 +188,18 @@ impl StructField {
     pub fn determine_has_value_method(&self, proto_field: &Ident) -> TokenStream {
         // First consult field attributes that override struct type
         if let Some(attrs) = &self.attrs {
-            // Override has_value for scalar and enumeration types
-            if attrs.enumeration || attrs.scalar {
+            // Override has_value for scalar types
+            if attrs.scalar {
                 return quote! { ProtoScalar::has_value(&value) };
+            }
+            // Override has_value for enumeration types
+            if attrs.enumeration {
+                return quote! { ProtoScalar::has_value(&value.value()) };
             }
         }
 
         if self.ty.is_scalar() {
-            quote! {ProtoScalar::has_value(&value) }
+            quote! { ProtoScalar::has_value(&value) }
         } else {
             let has_field = format_ident!("has_{}", proto_field);
             quote! { proto.#has_field() }
@@ -198,7 +208,7 @@ impl StructField {
 
     // TODO use struct attrs for rename_all
     /// Specific `protobuf` feature implementation of struct filed setter method.
-    #[cfg(feature="protobuf")]
+    #[cfg(feature = "protobuf")]
     pub(crate) fn implement_setter(&self, _struct_attrs: &StructAttrs) -> TokenStream {
         let struct_field = &self.name;
 

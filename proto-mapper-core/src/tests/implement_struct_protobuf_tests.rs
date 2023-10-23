@@ -232,7 +232,56 @@ fn implement_struct_scalars_with_attribute_overrides_test() {
 }
 
 #[test]
-fn implement_struct_enumerations_with_attribute_overrides_test() {}
+fn implement_struct_enumerations_with_attribute_overrides_test() {
+    let fragment = quote! {
+        #[proto_map(source = "proto::Test")]
+        struct Test {
+            #[proto_map(enumeration)]
+            enum_1: Enum,
+            #[proto_map(enumeration)]
+            enum_2: Option<Enum>,
+        }
+    };
+
+    let input = syn::parse2::<DeriveInput>(fragment.into()).unwrap();
+
+    let s = from_derive_input_struct(&input).unwrap();
+
+    let expected = quote! {
+        impl ProtoMap for Test {
+            type ProtoStruct = proto::Test;
+            fn to_proto(&self) -> Self::ProtoStruct {
+                let mut proto = proto::Test::default();
+
+                proto.set_enum_1(ProtoMap::to_proto(&self.enum_1).into());
+
+                if let Some(value) = &self.enum_2 {
+                    proto.set_enum_2(ProtoMap::to_proto(value).into());
+                }
+
+                proto
+            }
+
+            fn from_proto(proto: Self::ProtoStruct) -> std::result::Result<Self, anyhow::Error> {
+                let inner = Self {
+                    enum_1: ProtoMap::from_proto(proto.enum_1().to_owned())?,
+                    enum_2: {
+                        let value = proto.enum_2().to_owned();
+                        if ProtoScalar::has_value(&value.value())  {
+                            Some(ProtoMap::from_proto(value)?)
+                        } else {
+                            None
+                        }
+                    },
+                };
+                Ok(inner)
+            }
+        }
+    };
+
+    let actual = s.implement_proto_map();
+    assert_tokens_eq(&expected, &actual);
+}
 
 #[test]
 fn implement_struct_with_attribute_overrides_test() {}

@@ -1,1 +1,2 @@
 mod struct_entity_tests;
+mod manual_implementation_tests;

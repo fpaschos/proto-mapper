@@ -31,13 +31,14 @@ pub enum EntityType {
 }
 
 #[derive(Debug, ProtoMap, Eq, PartialEq)]
-#[proto_map(source = "proto::protobuf::Entity")]
-struct Entity {
-    pub id: u32,
-    pub nonce: i32,
-    pub valid: bool,
+#[proto_map(source = "proto::protobuf::ScalarEntity")]
+struct ScalarEntity {
+    pub uint32_f: u32,
+    pub int32_f: i32,
+    #[proto_map(rename = "bool_f")]
+    pub boolean_f: bool,
     #[proto_map(skip)]
-    pub name: String,
+    pub string_f: String,
     pub status: EntityStatus,
     #[proto_map(rename = "type_")]
     pub r#type: EntityType,
@@ -45,35 +46,34 @@ struct Entity {
 
 #[test]
 fn entity_round_trip() {
-    let mut original = Entity {
-        id: 1,
-        nonce: 10,
-        valid: true,
-        name: "Bar".to_string(),
+    let mut original = ScalarEntity {
+        uint32_f: 10,
+        int32_f: -10,
+        boolean_f: true,
+        string_f: "Bar".to_string(),
         status: EntityStatus::StatusA,
         r#type: EntityType::TypeC,
     };
 
     let p = original.to_proto();
-    let tested = Entity::from_proto(p).unwrap();
+    let tested = ScalarEntity::from_proto(p).unwrap();
 
-    original.name = Default::default(); // Name is skipped so default
+    original.string_f = Default::default(); // Name is skipped so default
     assert_eq!(tested, original);
 }
 
 #[test]
 fn proto_entity_round_trip() {
-    let mut original = proto::protobuf::Entity {
-        id: 1,
-        nonce: 10,
-        name: "Foo".to_string(),
-        valid: true,
+    let mut original = proto::protobuf::ScalarEntity {
+        uint32_f: 10,
+        int32_f: -10,
+        bool_f: true,
         ..Default::default()
     };
 
-    let e = Entity::from_proto(original.clone()).unwrap();
+    let e = ScalarEntity::from_proto(original.clone()).unwrap();
     let tested = e.to_proto();
 
-    original.name = Default::default(); // Name is skipped so default
+    original.string_f= Default::default(); // string field is skipped so default
     assert_eq!(tested, original);
 }
