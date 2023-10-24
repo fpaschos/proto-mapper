@@ -60,13 +60,13 @@ impl ProtoMap for ScalarEntity {
     }
     fn from_proto(proto: Self::ProtoStruct) -> Result<Self, anyhow::Error> {
         let inner = Self {
-            uint32_f: ProtoMapScalar::from_scalar(proto.uint32_f.to_owned())?,
-            int32_f: ProtoMapScalar::from_scalar(proto.int32_f.to_owned())?,
-            bool_f: ProtoMapScalar::from_scalar(proto.bool_f.to_owned())?,
-            string_f: ProtoMapScalar::from_scalar(proto.string_f.to_owned())?,
-            bytes_f: ProtoMapScalar::from_scalar(proto.bytes_f.to_owned())?,
+            uint32_f: ProtoMapScalar::from_scalar(proto.uint32_f)?,
+            int32_f: ProtoMapScalar::from_scalar(proto.int32_f)?,
+            bool_f: ProtoMapScalar::from_scalar(proto.bool_f)?,
+            string_f: ProtoMapScalar::from_scalar(proto.string_f)?,
+            bytes_f: ProtoMapScalar::from_scalar(proto.bytes_f)?,
             // Special case for enum
-            status: ProtoMapScalar::from_scalar(proto.status.to_owned())?,
+            status: ProtoMapScalar::from_scalar(proto.status)?,
         };
         Ok(inner)
     }
@@ -172,6 +172,7 @@ impl ProtoMap for ScalarEntityOptions {
         Ok(inner)
     }
 }
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct NestedEntity {
     first: ScalarEntity,
@@ -246,6 +247,7 @@ fn proto_entity_test_round_trip() {
 
     assert_eq!(tested, original);
 }
+
 #[test]
 fn test_entity_with_options_round_trips() {
     let original = ScalarEntityOptions {

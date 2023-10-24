@@ -1,4 +1,4 @@
-use crate::attributes::StructAttrs;
+use crate::structs::StructAttrs;
 use darling::FromMeta;
 use quote::quote;
 use syn::{Data, DeriveInput};

@@ -1,4 +1,4 @@
-use crate::attributes::StructAttrs;
+use super::attrs::StructAttrs;
 use crate::find_proto_map_meta;
 use crate::structs::StructField;
 use darling::FromMeta;

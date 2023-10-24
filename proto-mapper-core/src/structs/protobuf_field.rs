@@ -1,7 +1,7 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 
-use crate::attributes::{FieldAttrs, StructAttrs};
+use super::{FieldAttrs, StructAttrs};
 use crate::types::Ty;
 use crate::{find_proto_map_meta, get_proto_field_name};
 

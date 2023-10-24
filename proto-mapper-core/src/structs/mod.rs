@@ -9,4 +9,9 @@ mod protobuf_field;
 pub(crate) use protobuf_field::StructField;
 
 mod structs;
+
 pub(crate) use structs::Struct;
+
+mod attrs;
+
+pub(crate) use attrs::*;

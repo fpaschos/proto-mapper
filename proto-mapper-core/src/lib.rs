@@ -5,7 +5,6 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Attribute, DeriveInput, Meta};
 
-mod attributes;
 mod proto_enum;
 mod proto_map;
 mod structs;

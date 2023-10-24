@@ -42,11 +42,11 @@ fn implement_struct_scalar_types_test() {
 
             fn from_proto(proto: Self::ProtoStruct) -> std::result::Result<Self, anyhow::Error> {
                 let inner = Self {
-                    id: ProtoMapScalar::from_scalar(proto.id.to_owned())?,
-                    valid: ProtoMapScalar::from_scalar(proto.valid.to_owned())?,
-                    bytes: ProtoMapScalar::from_scalar(proto.bytes.to_owned())?,
+                    id: ProtoMapScalar::from_scalar(proto.id)?,
+                    valid: ProtoMapScalar::from_scalar(proto.valid)?,
+                    bytes: ProtoMapScalar::from_scalar(proto.bytes)?,
                     opt_name: {
-                        let value = proto.opt_name.to_owned();
+                        let value = proto.opt_name;
                         if ProtoScalar::has_value(&value) {
                             Some(ProtoMapScalar::from_scalar(value)?)
                         } else {
@@ -54,7 +54,7 @@ fn implement_struct_scalar_types_test() {
                         }
                     },
                     opt_bytes: {
-                        let value = proto.opt_bytes.to_owned();
+                        let value = proto.opt_bytes;
                         if ProtoScalar::has_value(&value) {
                             Some(ProtoMapScalar::from_scalar(value)?)
                         } else {
@@ -71,55 +71,61 @@ fn implement_struct_scalar_types_test() {
     assert_tokens_eq(&expected, &actual);
 }
 
-// #[test]
-// fn implement_struct_non_scalar_types_test() {
-//     let fragment = quote! {
-//         #[proto_map(source = "proto::Test")]
-//         struct Test {
-//             entity: Entity,
-//             opt_entity: Option<Entity>,
-//         }
-//     };
-//
-//     let input = syn::parse2::<DeriveInput>(fragment.into()).unwrap();
-//
-//     let s = from_derive_input_struct(&input).unwrap();
-//
-//     let expected = quote! {
-//         impl ProtoMap for Test {
-//             type ProtoStruct = proto::Test;
-//             fn to_proto(&self) -> Self::ProtoStruct {
-//                 let mut proto = proto::Test::default();
-//
-//                 proto.set_entity(ProtoMap::to_proto(&self.entity).into());
-//
-//                 if let Some(value) = &self.opt_entity {
-//                     proto.set_opt_entity(ProtoMap::to_proto(value).into());
-//                 }
-//
-//                 proto
-//             }
-//
-//             fn from_proto(proto: Self::ProtoStruct) -> std::result::Result<Self, anyhow::Error> {
-//                 let inner = Self {
-//                     entity: ProtoMap::from_proto(proto.entity().to_owned())?,
-//                     opt_entity: {
-//                         let value = proto.opt_entity().to_owned();
-//                         if proto.has_opt_entity() {
-//                             Some(ProtoMap::from_proto(value)?)
-//                         } else {
-//                             None
-//                         }
-//                     },
-//                 };
-//                 Ok(inner)
-//             }
-//         }
-//     };
-//
-//     let actual = s.implement_proto_map();
-//     assert_tokens_eq(&expected, &actual);
-// }
+#[test]
+fn implement_struct_non_scalar_types_test() {
+    let fragment = quote! {
+        #[proto_map(source = "proto::Test")]
+        struct Test {
+            first: Entity,
+            second: Option<Entity>,
+        }
+    };
+
+    let input = syn::parse2::<DeriveInput>(fragment.into()).unwrap();
+
+    let s = from_derive_input_struct(&input).unwrap();
+
+    let expected = quote! {
+        impl ProtoMap for Test {
+            type ProtoStruct = proto::Test;
+            fn to_proto(&self) -> Self::ProtoStruct {
+                let mut proto = proto::Test::default();
+
+                proto.first = Some(ProtoMap::to_proto(&self.first));
+
+                if let Some(value) = &self.second {
+                    proto.second = Some(ProtoMap::to_proto(value));
+                }
+
+                proto
+            }
+
+            fn from_proto(proto: Self::ProtoStruct) -> std::result::Result<Self, anyhow::Error> {
+                let inner = Self {
+                    first: {
+                        if let Some(value) = proto.first {
+                            ProtoMap::from_proto(value)?
+                        } else {
+                            Default::default()
+                        }
+
+                    },
+                    second: {
+                        if let Some(value) = proto.second {
+                            Some(ProtoMap::from_proto(value)?)
+                        } else {
+                            None
+                        }
+                    },
+                };
+                Ok(inner)
+            }
+        }
+    };
+
+    let actual = s.implement_proto_map();
+    assert_tokens_eq(&expected, &actual);
+}
 //
 // #[test]
 // fn implement_struct_rename_attributes_test() {

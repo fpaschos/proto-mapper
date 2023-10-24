@@ -1,7 +1,7 @@
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
 
-use crate::attributes::{FieldAttrs, StructAttrs};
+use super::{FieldAttrs, StructAttrs};
 use crate::types::Ty;
 use crate::{find_proto_map_meta, get_proto_field_name};
 
@@ -176,27 +176,6 @@ impl StructField {
         }
     }
 
-    pub fn determine_has_value_method(&self, proto_field: &Ident) -> TokenStream {
-        // First consult field attributes that override struct type
-        if let Some(attrs) = &self.attrs {
-            // Override has_value for scalar types
-            if attrs.scalar {
-                return quote! { ProtoScalar::has_value(&value) };
-            }
-            // Override has_value for enumeration types
-            if attrs.enumeration {
-                return quote! { ProtoScalar::has_value(&value.value()) };
-            }
-        }
-
-        if self.ty.is_scalar() {
-            quote! { ProtoScalar::has_value(&value) }
-        } else {
-            let has_field = format_ident!("has_{}", proto_field);
-            quote! { proto.#has_field() }
-        }
-    }
-
     // TODO use struct attrs for rename_all
     /// Specific `prost` feature implementation of struct filed setter method.
     pub(crate) fn implement_setter(&self, _struct_attrs: &StructAttrs) -> TokenStream {
@@ -222,27 +201,54 @@ impl StructField {
 
         let from_proto_method = self.determine_from_proto_method();
 
-        let proto_field_getter = format_ident!("{}", proto_field);
+        let proto_field_getter = &proto_field;
 
-        if self.ty.is_optional() {
-            // Determine the appropriate has_value method
-            let has_value_method = self.determine_has_value_method(&proto_field);
-
-            // In case of optional check value is empty via `has_value_method`
-            quote! {
-                #struct_field: {
-                    let value = proto.#proto_field_getter.to_owned();
-                    if #has_value_method {
-                        Some(#from_proto_method(value)?)
-                    } else {
-                        None
-                    }
-                },
+        match (self.is_scalar_like(), self.ty.is_optional()) {
+            // scalar - non optional
+            (true, false) => {
+                quote! {
+                    #struct_field: #from_proto_method(proto.#proto_field_getter)?,
+                }
             }
-        } else {
-            // Non optional field just a setter
-            quote! {
-                #struct_field: #from_proto_method(proto.#proto_field_getter.to_owned())?,
+
+            // scalar - optional
+            (true, true) => {
+
+                quote! {
+                    #struct_field: {
+                        let value = proto.#proto_field_getter;
+                        if ProtoScalar::has_value(&value) {
+                            Some(#from_proto_method(value)?)
+                        } else {
+                            None
+                        }
+                    },
+                }
+            }
+
+            // non scalar - non optional
+            (false, false) => {
+                quote! {
+                    #struct_field: {
+                        if let Some(value) = proto.#proto_field_getter {
+                            #from_proto_method(value)?
+                        } else {
+                            Default::default()
+                        }
+                    },
+                }
+            }
+            // non scalar - optional
+            (false, true) => {
+                quote! {
+                    #struct_field: {
+                        if let Some(value) = proto.#proto_field_getter {
+                            Some(#from_proto_method(value)?)
+                        } else {
+                            None
+                        }
+                    },
+                }
             }
         }
     }
