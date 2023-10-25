@@ -3,7 +3,7 @@ use std::ops::Deref;
 use quote::quote;
 use syn::{parse_quote, Data, DeriveInput, Path};
 
-use crate::proto_enum::{EnumAttrs, EnumVariant};
+use crate::enums::{EnumAttrs, EnumVariant};
 
 #[test]
 fn parse_enum_one_of_attributes_test() {

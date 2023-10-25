@@ -1,4 +1,4 @@
-use crate::proto_enum::Enum;
+use crate::enums::Enum;
 use crate::structs::Struct;
 use heck::ToSnakeCase;
 use proc_macro2::{Ident, TokenStream};
