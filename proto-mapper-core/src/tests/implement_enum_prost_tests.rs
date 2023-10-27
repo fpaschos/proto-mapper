@@ -68,7 +68,7 @@ fn implement_non_enumeration_test() {
             type ProtoStruct = proto::HierarchyEntity;
 
             fn to_proto(&self) -> Self::ProtoStruct {
-                let mut inner = Self::ProtoStruct::new();
+                let mut inner = Self::ProtoStruct::default();
                 match self {
                     Self::FirstEntity(value) => inner.set_first_entity(value.to_proto()),
                     Self::SecondEntity(value) => inner.set_second_entity(value.to_proto()),

@@ -96,14 +96,14 @@ impl Enum {
                 let variant_name = &variant.name;
                 let proto_variant_name = self.get_proto_variant_name(variant);
 
-                let setter = Ident::new(&format!("set_{}", proto_variant_name), Span::call_site());
+                let setter = Ident::new(&format!("{}", proto_variant_name), Span::call_site());
                 quote! {
                      Self::#variant_name(value) => inner.#setter(value.to_proto()),
                 }
             });
 
             quote! {
-                let mut inner = Self::ProtoStruct::new();
+                let mut inner = Self::ProtoStruct::default();
                 match self {
                     #( #match_arms )*
                 }

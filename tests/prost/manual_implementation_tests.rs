@@ -1,5 +1,6 @@
 use crate::proto;
 use proto_mapper::{ProtoMap, ProtoMapScalar, ProtoScalar};
+use crate::proto::prost::hierarchy_entity::Data;
 
 /// Fully expanded and manual experiments (these used to build the macros and the library traits synergy)
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
@@ -173,7 +174,7 @@ impl ProtoMap for ScalarEntityOptions {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct NestedEntity {
     first: ScalarEntity,
     second: Option<ScalarEntity>,
@@ -210,6 +211,34 @@ impl ProtoMap for NestedEntity {
             },
         };
         Ok(inner)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+enum HierarchyEntity {
+    FirstEntity(ScalarEntity),
+    SecondEntity(NestedEntity),
+}
+
+impl ProtoMap for HierarchyEntity {
+    type ProtoStruct = proto::prost::HierarchyEntity;
+
+    fn to_proto(&self) -> Self::ProtoStruct {
+        let mut inner = Self::ProtoStruct::default();
+        match self {
+            Self::FirstEntity(value) => inner.data = Some(proto::prost::hierarchy_entity::Data::FirstEntity(value.to_proto())),
+            Self::SecondEntity(value) => inner.data = Some(proto::prost::hierarchy_entity::Data::SecondEntity(value.to_proto())),
+        }
+        inner
+    }
+    fn from_proto(proto: Self::ProtoStruct) -> std::result::Result<Self, anyhow::Error> {
+        match proto.data {
+            Some(proto::prost::hierarchy_entity::Data::FirstEntity(value)) => { ScalarEntity::from_proto(value)
+                .map(Self::FirstEntity) }
+            Some(proto::prost::hierarchy_entity::Data::SecondEntity(value)) => { NestedEntity::from_proto(value)
+                .map(Self::SecondEntity) }
+            _ => Err(anyhow::anyhow!(stringify!(Failed to decode enum HierarchyEntity from proto entity)))
+        }
     }
 }
 
@@ -280,36 +309,63 @@ fn test_entity_with_options_round_trips() {
 
     assert_eq!(tested, original);
 }
-//
-//
-//
-// #[test]
-// fn nested_entity_test_round_trips() {
-//     let entity = Entity {
-//         id: 1,
-//         nonce: 10,
-//         valid: true,
-//         name: "Foo".into(),
-//         status: EntityStatus::StatusB,
-//     };
-//
-//     let original = NestedEntity {
-//         first: entity.clone(),
-//         second: None,
-//     };
-//
-//     let p = original.to_proto();
-//     let tested = NestedEntity::from_proto(p).unwrap();
-//
-//     assert_eq!(tested, original);
-//
-//     let original = NestedEntity {
-//         first: entity.clone(),
-//         second: Some(entity.clone()),
-//     };
-//
-//     let p = original.to_proto();
-//     let tested = NestedEntity::from_proto(p).unwrap();
-//
-//     assert_eq!(tested, original);
-// }
+
+#[test]
+fn nested_entity_test_round_trips() {
+    let entity = ScalarEntity {
+        uint32_f: 1,
+        int32_f: 10,
+        bool_f: true,
+        string_f: "Foo".into(),
+        bytes_f: "Foo".as_bytes().to_vec(),
+        status: EntityStatus::StatusC,
+    };
+
+    let original = NestedEntity {
+        first: entity.clone(),
+        second: None,
+    };
+
+    let p = original.to_proto();
+    let tested = NestedEntity::from_proto(p).unwrap();
+
+    assert_eq!(tested, original);
+
+    let original = NestedEntity {
+        first: entity.clone(),
+        second: Some(entity.clone()),
+    };
+
+    let p = original.to_proto();
+    let tested = NestedEntity::from_proto(p).unwrap();
+
+    assert_eq!(tested, original);
+}
+
+#[test]
+fn hierarchy_entity_round_trip() {
+    let entity = ScalarEntity {
+        uint32_f: 1,
+        int32_f: 10,
+        bool_f: true,
+        string_f: "Foo".into(),
+        bytes_f: "Foo".as_bytes().to_vec(),
+        status: EntityStatus::StatusC,
+    };
+
+    let nested = NestedEntity {
+        first: entity.clone(),
+        second: Some(entity.clone()),
+    };
+
+    let original = HierarchyEntity::FirstEntity(entity);
+    let p = original.to_proto();
+    let tested = HierarchyEntity::from_proto(p).unwrap();
+
+    assert_eq!(tested, original);
+
+    let original = HierarchyEntity::SecondEntity(nested);
+    let p = original.to_proto();
+    let tested = HierarchyEntity::from_proto(p).unwrap();
+    assert_eq!(tested, original);
+}

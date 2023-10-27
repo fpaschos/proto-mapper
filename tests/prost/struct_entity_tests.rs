@@ -1,13 +1,12 @@
 use crate::proto;
 use proto_mapper::{derive::ProtoMap, ProtoMap, ProtoMapScalar};
 
-#[derive(Debug, Clone, Default, Copy, PartialEq, ProtoMap)]
+#[derive(Debug, Clone, Copy, PartialEq, ProtoMap)]
 #[proto_map(
 source = "proto::prost::EntityStatus",
 enumeration
 )]
 enum EntityStatus {
-    #[default]
     StatusA,
     StatusB,
     StatusC,
