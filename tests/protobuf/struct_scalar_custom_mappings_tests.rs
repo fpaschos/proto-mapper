@@ -1,7 +1,9 @@
 use crate::proto;
 use proto_mapper::derive::ProtoMap;
-use proto_mapper::{uuid_as_bytes, uuid_as_string, ProtoMap, ProtoScalar};
+use proto_mapper::{ProtoMap, ProtoMapScalar, ProtoScalar};
+use super::custom_mappings::{uuid_as_bytes, uuid_as_string};
 use uuid::Uuid;
+
 #[derive(Debug, ProtoMap, Eq, PartialEq)]
 #[proto_map(source = "proto::protobuf::EntityUuids")]
 struct EntityUuids {
