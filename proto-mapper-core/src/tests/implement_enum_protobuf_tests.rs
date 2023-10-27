@@ -8,7 +8,8 @@ fn implement_enumeration_test() {
     let fragment = quote! {
         #[proto_map(
             source = "proto::EntityStatus",
-            enumeration
+            enumeration,
+            rename_variants = "STREAMING_SNAKE_CASE"
         )]
         enum EntityStatus {
             StatusA,

@@ -150,11 +150,8 @@ impl StructField {
         if let Some(attrs) = &self.attrs {
             match &attrs.with {
                 // Override self.ty for scalar, enumeration properties
-                None if attrs.scalar => {
+                None if attrs.scalar || attrs.enumeration => {
                     return quote! { ProtoMapScalar::from_scalar };
-                }
-                None if attrs.enumeration => {
-                    return quote! { ProtoMap::from_proto };
                 }
                 // Override implementation for with module  scalar
                 Some(with) if attrs.scalar || attrs.enumeration || self.ty.is_scalar() => {

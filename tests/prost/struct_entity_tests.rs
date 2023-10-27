@@ -1,18 +1,17 @@
 use crate::proto;
 use proto_mapper::{derive::ProtoMap, ProtoMap, ProtoMapScalar};
 
-// TODO support enumeration
-// #[derive(Debug, Clone, Copy, PartialEq, ProtoMap)]
-// #[proto_map(
-// source = "proto::prost::EntityStatus",
-// enumeration,
-// rename_variants = "STREAMING_SNAKE_CASE"
-// )]
-// enum EntityStatus {
-//     StatusA,
-//     StatusB,
-//     StatusC,
-// }
+#[derive(Debug, Clone, Default, Copy, PartialEq, ProtoMap)]
+#[proto_map(
+source = "proto::prost::EntityStatus",
+enumeration
+)]
+enum EntityStatus {
+    #[default]
+    StatusA,
+    StatusB,
+    StatusC,
+}
 
 #[derive(Debug, ProtoMap, PartialEq)]
 #[proto_map(source = "proto::prost::ScalarEntity")]
@@ -22,7 +21,8 @@ struct ScalarEntity {
     pub bool_f: bool,
     pub string_f: String,
     pub bytes_f: Vec<u8>,
-    // pub status: EntityStatus,
+    #[proto_map(enumeration)]
+    pub status: EntityStatus,
 }
 #[test]
 fn entity_round_trip() {
@@ -32,10 +32,10 @@ fn entity_round_trip() {
         bool_f: true,
         string_f: "Foo".into(),
         bytes_f: "Foo".as_bytes().to_vec(),
-        // status: EntityStatus::StatusC,
+        status: EntityStatus::StatusC,
     };
 
-    let p = original.to_proto();
+    let p: proto::prost::ScalarEntity = original.to_proto();
     let tested = ScalarEntity::from_proto(p).unwrap();
 
     assert_eq!(tested, original);
@@ -49,7 +49,7 @@ fn proto_entity_round_trip() {
         bool_f: true,
         string_f: "Foo".into(),
         bytes_f: "Foo".as_bytes().to_vec(),
-        // status: proto::prost::EntityStatus::STATUS_C.into(),
+        status: proto::prost::EntityStatus::StatusC.into(),
         ..Default::default()
     };
 

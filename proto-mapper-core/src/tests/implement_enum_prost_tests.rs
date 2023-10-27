@@ -7,9 +7,8 @@ use crate::tests::{assert_tokens_eq, from_derive_input_enum};
 fn implement_enumeration_test() {
     let fragment = quote! {
         #[proto_map(
-            source = "proto::EntityStatus",
+            source = "proto::prost::EntityStatus",
             enumeration,
-            rename_variants = "STREAMING_SNAKE_CASE"
         )]
         enum EntityStatus {
             StatusA,
@@ -22,24 +21,23 @@ fn implement_enumeration_test() {
     let e = from_derive_input_enum(&input).unwrap();
 
     let expected = quote! {
-        impl ProtoMap for EntityStatus {
-            type ProtoStruct = proto::EntityStatus;
+        impl ProtoMapScalar<i32> for EntityStatus {
 
-            fn to_proto(&self) -> Self::ProtoStruct {
+            fn to_scalar(&self) -> i32 {
                  match self {
-                    Self::StatusA => proto::EntityStatus::STATUS_A,
-                    Self::StatusB => proto::EntityStatus::STATUS_B,
-                    Self::StatusC => proto::EntityStatus::STATUS_C,
-
+                    Self::StatusA => proto::prost::EntityStatus::StatusA.into(),
+                    Self::StatusB => proto::prost::EntityStatus::StatusB.into(),
+                    Self::StatusC => proto::prost::EntityStatus::StatusC.into(),
                 }
             }
 
-            fn from_proto(proto: Self::ProtoStruct) -> std::result::Result<Self, anyhow::Error> {
+            fn from_scalar(proto: i32) -> std::result::Result<Self, anyhow::Error> {
                  match proto {
-                        proto::EntityStatus::STATUS_A => Ok(Self::StatusA),
-                        proto::EntityStatus::STATUS_B => Ok(Self::StatusB),
-                        proto::EntityStatus::STATUS_C => Ok(Self::StatusC),
-                    }
+                    _ if proto == proto::prost::EntityStatus::StatusA as i32 => Ok(Self::StatusA),
+                    _ if proto == proto::prost::EntityStatus::StatusB as i32 => Ok(Self::StatusB),
+                    _ if proto == proto::prost::EntityStatus::StatusC as i32 => Ok(Self::StatusC),
+                    _ => Err(anyhow::anyhow!(format!(stringify!(Failed to match enum value {} to proto entity EntityStatus) ,proto)))
+                }
             }
         }
     };
@@ -47,6 +45,7 @@ fn implement_enumeration_test() {
     let actual = e.implement_proto_map();
     assert_tokens_eq(&expected, &actual)
 }
+
 #[test]
 fn implement_non_enumeration_test() {
     let fragment = quote! {

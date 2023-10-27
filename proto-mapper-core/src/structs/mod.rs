@@ -8,9 +8,9 @@ mod protobuf_field;
 #[cfg(feature = "protobuf")]
 pub(crate) use protobuf_field::StructField;
 
-mod structs;
+mod r#struct;
 
-pub(crate) use structs::Struct;
+pub(crate) use r#struct::Struct;
 
 mod attrs;
 

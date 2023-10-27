@@ -40,7 +40,10 @@ impl Enum {
     }
 
     /// Implementation of (`to_proto_impl`, `from_proto_impl`) for `enumeration` variant cases.
-    fn implement_enumeration(&self) -> (TokenStream, TokenStream) {
+    fn implement_enumeration_proto_methods(&self) -> (TokenStream, TokenStream) {
+
+        // Variant outer name
+        let name = &self.name;
         // Proto struct name
         let proto_struct = &self.attrs.source;
 
@@ -50,7 +53,7 @@ impl Enum {
                 let proto_variant_name = self.get_proto_variant_name(variant);
                 let proto_variant_name = Ident::new(&proto_variant_name, Span::call_site());
                 quote! {
-                    Self::#variant_name =>  #proto_struct::#proto_variant_name,
+                    Self::#variant_name =>  #proto_struct::#proto_variant_name.into(),
                 }
             });
             quote! {
@@ -67,7 +70,7 @@ impl Enum {
                 let proto_variant_name = Ident::new(&proto_variant_name, Span::call_site());
 
                 quote! {
-                    #proto_struct::#proto_variant_name => Ok(Self::#variant_name),
+                    _ if proto == #proto_struct::#proto_variant_name as i32 => Ok(Self::#variant_name),
                 }
             });
 
@@ -75,6 +78,7 @@ impl Enum {
             quote! {
                 match proto {
                      #( #match_arms )*
+                     _ => Err(anyhow::anyhow!(format!(stringify!(Failed to match enum value {} to proto entity #name), proto)))
                 }
             }
         };
@@ -83,7 +87,7 @@ impl Enum {
     }
 
     /// Implementation of (`to_proto_impl`, `from_proto_impl`) for `one_of` variant cases.
-    fn implement_one_of(&self) -> (TokenStream, TokenStream) {
+    fn implement_one_of_proto_methods(&self) -> (TokenStream, TokenStream) {
         // Variant outer name
         let name = &self.name;
 
@@ -162,22 +166,34 @@ impl Enum {
         // Proto struct name
         let proto_struct = &self.attrs.source;
 
-        let (to_proto_impl, from_proto_impl) = if self.attrs.is_enumeration() {
-            self.implement_enumeration()
-        } else {
-            self.implement_one_of()
-        };
+        if self.attrs.is_enumeration() {
+           let (to_proto_impl, from_proto_impl) =  self.implement_enumeration_proto_methods();
+            quote! {
+                impl ProtoMapScalar<i32> for #name {
 
-        quote! {
-            impl ProtoMap for #name {
-                type ProtoStruct = #proto_struct;
+                    fn to_scalar(&self) -> i32 {
+                        #to_proto_impl
+                    }
 
-                fn to_proto(&self) -> Self::ProtoStruct {
-                    #to_proto_impl
+                    fn from_scalar(proto: i32) -> std::result::Result<Self, anyhow::Error> {
+                        #from_proto_impl
+                    }
                 }
+            }
+        } else {
+            let (to_proto_impl, from_proto_impl) =  self.implement_one_of_proto_methods();
 
-                fn from_proto(proto: Self::ProtoStruct) -> std::result::Result<Self, anyhow::Error> {
-                    #from_proto_impl
+            quote! {
+                impl ProtoMap for #name {
+                    type ProtoStruct = #proto_struct;
+
+                    fn to_proto(&self) -> Self::ProtoStruct {
+                        #to_proto_impl
+                    }
+
+                    fn from_proto(proto: Self::ProtoStruct) -> std::result::Result<Self, anyhow::Error> {
+                        #from_proto_impl
+                    }
                 }
             }
         }

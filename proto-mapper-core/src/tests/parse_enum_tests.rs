@@ -5,6 +5,7 @@ use syn::{parse_quote, Data, DeriveInput, Path};
 
 use crate::enums::{EnumAttrs, EnumVariant};
 
+
 #[test]
 fn parse_enum_one_of_attributes_test() {
     let fragment = quote! {
