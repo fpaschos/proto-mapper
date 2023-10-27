@@ -126,6 +126,58 @@ fn implement_struct_non_scalar_types_test() {
     let actual = s.implement_proto_map();
     assert_tokens_eq(&expected, &actual);
 }
+
+#[test]
+fn implement_struct_enumeration_types_test() {
+    let fragment = quote! {
+        #[proto_map(source = "proto::Test")]
+        struct Test {
+            #[proto_map(enumeration)]
+            first: Status,
+            #[proto_map(enumeration)]
+            second: Option<Status>,
+        }
+    };
+
+    let input = syn::parse2::<DeriveInput>(fragment.into()).unwrap();
+
+    let s = from_derive_input_struct(&input).unwrap();
+
+    let expected = quote! {
+        impl ProtoMap for Test {
+            type ProtoStruct = proto::Test;
+            fn to_proto(&self) -> Self::ProtoStruct {
+                let mut proto = proto::Test::default();
+
+                proto.first = ProtoMapScalar::to_scalar(&self.first);
+
+                if let Some(value) = &self.second {
+                    proto.second = ProtoMapScalar::to_scalar(value);
+                }
+
+                proto
+            }
+
+            fn from_proto(proto: Self::ProtoStruct) -> std::result::Result<Self, anyhow::Error> {
+                let inner = Self {
+                    first: ProtoMapScalar::from_scalar(proto.first)?,
+                    second: {
+                        let value = proto.second;
+                        if ProtoScalar::has_value(&value) {
+                            Some(ProtoMapScalar::from_scalar(value)?)
+                        } else {
+                            None
+                        }
+                    },
+                };
+                Ok(inner)
+            }
+        }
+    };
+
+    let actual = s.implement_proto_map();
+    assert_tokens_eq(&expected, &actual);
+}
 //
 // #[test]
 // fn implement_struct_rename_attributes_test() {
