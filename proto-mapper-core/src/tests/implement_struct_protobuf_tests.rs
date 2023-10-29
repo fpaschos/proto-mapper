@@ -283,5 +283,5 @@ fn implement_struct_enumerations_with_attribute_overrides_test() {
     assert_tokens_eq(&expected, &actual);
 }
 
-#[test]
-fn implement_struct_with_attribute_overrides_test() {}
+// #[test]
+// fn implement_struct_with_attribute_overrides_test() {}
