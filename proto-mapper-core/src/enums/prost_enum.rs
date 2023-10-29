@@ -1,7 +1,7 @@
 use crate::rename_item;
 use heck::{ToSnakeCase, ToUpperCamelCase};
 use proc_macro2::{Ident, Span, TokenStream};
-use quote::{format_ident, quote};
+use quote::quote;
 use syn::{Attribute, DataEnum, Fields, Path, Type, Variant};
 use crate::enums::EnumAttrs;
 
