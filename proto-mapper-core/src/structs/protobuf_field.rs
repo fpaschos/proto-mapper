@@ -1,11 +1,14 @@
-use darling::FromMeta;
 use proc_macro2::{Ident, TokenStream};
 use quote::{format_ident, quote};
-use syn::{Attribute, DataStruct, Path};
 
+use super::{FieldAttrs, StructAttrs};
 use crate::types::Ty;
 use crate::{find_proto_map_meta, get_proto_field_name};
 
+/// [`StructField`] describes a struct field capable of generating `getter` `setter` implementations
+/// for `ProtoMap` and `ProtoMapScalar` traits
+///
+/// This is the implementation variant for `protobuf` library support
 pub(crate) struct StructField {
     pub name: Ident,
     pub ty: Ty,
@@ -47,9 +50,14 @@ impl StructField {
         if let Some(attrs) = &self.attrs {
             match &attrs.with {
                 // Override self.ty for scalar, enumeration properties
-                None if attrs.scalar || attrs.enumeration => {
+                None if attrs.scalar => {
                     return quote! { ProtoMapScalar::to_scalar };
                 }
+                None if attrs.enumeration => {
+                    return quote! { ProtoMap::to_proto };
+                }
+
+                // TODO protobuf enumeration with override should be done via #with::to_proto interface
                 // Override implementation for with module  scalar
                 Some(with) if attrs.scalar || attrs.enumeration || self.ty.is_scalar() => {
                     return quote! { #with::to_scalar };
@@ -72,6 +80,7 @@ impl StructField {
     }
 
     // TODO use struct attrs for rename_all
+    /// Specific `protobuf` feature implementation of struct filed getter method.
     pub(crate) fn implement_getter(&self, _struct_attrs: &StructAttrs) -> TokenStream {
         // Fast handle skip attribute
         if let Some(FieldAttrs { skip: true, .. }) = &self.attrs {
@@ -108,15 +117,15 @@ impl StructField {
             }
         }
     }
-
     pub fn determine_from_proto_method(&self) -> TokenStream {
         // First consult field attributes that override struct type
         if let Some(attrs) = &self.attrs {
             match &attrs.with {
                 // Override self.ty for scalar, enumeration properties
-                None if attrs.scalar || attrs.enumeration => {
+                None if attrs.scalar => {
                     return quote! { ProtoMapScalar::from_scalar };
                 }
+                None if attrs.enumeration => return quote! {ProtoMap::from_proto},
                 // Override implementation for with module  scalar
                 Some(with) if attrs.scalar || attrs.enumeration || self.ty.is_scalar() => {
                     return quote! { #with::from_scalar };
@@ -140,14 +149,18 @@ impl StructField {
     pub fn determine_has_value_method(&self, proto_field: &Ident) -> TokenStream {
         // First consult field attributes that override struct type
         if let Some(attrs) = &self.attrs {
-            // Override has_value for scalar and enumeration types
-            if attrs.enumeration || attrs.scalar {
+            // Override has_value for scalar types
+            if attrs.scalar {
                 return quote! { ProtoScalar::has_value(&value) };
+            }
+            // Override has_value for enumeration types
+            if attrs.enumeration {
+                return quote! { ProtoScalar::has_value(&value.value()) };
             }
         }
 
         if self.ty.is_scalar() {
-            quote! {ProtoScalar::has_value(&value) }
+            quote! { ProtoScalar::has_value(&value) }
         } else {
             let has_field = format_ident!("has_{}", proto_field);
             quote! { proto.#has_field() }
@@ -155,6 +168,7 @@ impl StructField {
     }
 
     // TODO use struct attrs for rename_all
+    /// Specific `protobuf` feature implementation of struct filed setter method.
     pub(crate) fn implement_setter(&self, _struct_attrs: &StructAttrs) -> TokenStream {
         let struct_field = &self.name;
 
@@ -201,114 +215,5 @@ impl StructField {
                 #struct_field: #from_proto_method(proto.#proto_field_getter().to_owned())?,
             }
         }
-    }
-}
-
-pub(crate) struct Struct {
-    pub name: Ident,
-    pub attrs: StructAttrs,
-    pub fields: Vec<StructField>,
-}
-
-impl Struct {
-    pub(crate) fn try_from_data(
-        name: &Ident,
-        data: &DataStruct,
-        attrs: &[Attribute],
-    ) -> darling::Result<Self> {
-        let meta = find_proto_map_meta(attrs).ok_or_else(|| {
-            darling::Error::unsupported_shape("Missing required proto attribute `proto_map`")
-        })?;
-
-        let attrs = StructAttrs::from_meta(meta)?;
-
-        let fields = data
-            .fields
-            .iter()
-            .map(StructField::try_from_field)
-            .collect::<Result<Vec<_>, _>>()?;
-
-        Ok(Self {
-            name: name.clone(),
-            fields,
-            attrs,
-        })
-    }
-
-    /// Implementation of proto_map for `struct` items
-    pub(crate) fn implement_proto_map(&self) -> TokenStream {
-        let struct_name = format_ident!("{}", &self.name);
-        let proto_struct = &self.attrs.source;
-        let to_proto_impl = {
-            let fields = self.fields.iter().map(|f| f.implement_getter(&self.attrs));
-
-            quote! {
-                let mut proto = #proto_struct::default();
-                #(#fields)*
-                proto
-            }
-        };
-
-        let from_proto_impl = {
-            let fields = self.fields.iter().map(|f| f.implement_setter(&self.attrs));
-
-            quote! {
-                let inner = Self {
-                    #(#fields)*
-                };
-                Ok(inner)
-            }
-        };
-
-        quote! {
-            impl ProtoMap for #struct_name {
-                type ProtoStruct = #proto_struct;
-                fn to_proto(&self) -> Self::ProtoStruct {
-                    #to_proto_impl
-                }
-
-                fn from_proto(proto: Self::ProtoStruct) -> std::result::Result<Self, anyhow::Error> {
-                    #from_proto_impl
-                }
-            }
-        }
-    }
-}
-
-/// Meta attributes for `struct` items
-#[derive(Debug, darling::FromMeta)]
-pub(crate) struct StructAttrs {
-    pub source: Path,
-    /// Optional renaming of the struct fields before mapping to the proto entity.
-    pub rename_all: Option<String>,
-}
-
-/// Meta attributes for `struct field` items
-#[derive(Debug, darling::FromMeta, Default)]
-#[darling(default)]
-pub(crate) struct FieldAttrs {
-    /// Optional skipping struct field from proto serialization.
-    pub skip: bool,
-    /// Optional mark the field as an scalar type mapping.
-    pub scalar: bool,
-    /// Optional mark the field as an enumeration mapping (used only for optional getter/setter mapping).
-    pub enumeration: bool,
-    /// Optional module with implementation of override mappings (implementation depends on scalar, enumeration or other proto destination type)
-    pub with: Option<Path>,
-    /// Optional renaming of a single struct field before mapping to the proto entity.
-    pub rename: Option<String>,
-}
-
-impl FieldAttrs {
-    pub(crate) fn try_from_meta(meta: &syn::Meta) -> darling::Result<Self> {
-        let attrs = FieldAttrs::from_meta(meta)?;
-        attrs.validate()
-    }
-
-    fn validate(self) -> darling::Result<Self> {
-        if self.enumeration && self.scalar {
-            return Err(darling::Error::unsupported_shape("Struct attributes `enumeration` and `scalar` are mutually excluded (use only one of them)"));
-        }
-        Ok(self)
     }
 }

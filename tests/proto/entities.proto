@@ -4,30 +4,7 @@ import "google/protobuf/wrappers.proto";
 
 package entities.schema;
 
-// Entity
-message Entity {
-  uint32 id = 1;
-  int32 nonce = 2;
-  bool valid = 4;
-  string name = 5;
-
-  EntityStatus status = 6;
-  EntityType type = 7;
-}
-
-message EntityWithOptionals {
-  uint32 id = 1;
-  int32 nonce = 2;
-  bool valid = 4;
-  string name = 5;
-  uint32 opt_id = 6;
-  int32 opt_nonce = 7;
-  bool opt_valid = 8;
-  string opt_name = 9;
-  EntityStatus opt_status = 10;
-
-}
-
+// Plain enumerations
 enum EntityStatus {
   STATUS_A = 0;
   STATUS_B = 1;
@@ -40,6 +17,40 @@ enum EntityType {
   TYPE_C = 2;
 }
 
+// Entity with scalars
+message ScalarEntity {
+  uint32 uint32_f = 1;
+  int32 int32_f= 2;
+  bool bool_f = 4;
+  string string_f = 5;
+  int64  int64_f = 6;
+  uint64 uint64_f  = 7;
+  bytes bytes_f = 8;
+  float float_f = 9;
+  double double_f = 10;
+
+  EntityStatus status = 11;
+  EntityType type = 12;
+}
+
+message NestedEntity {
+  ScalarEntity first = 1;
+  ScalarEntity second = 2;
+}
+
+message HierarchyEntity {
+  oneof data {
+    ScalarEntity first_entity = 1;
+    NestedEntity second_entity = 2;
+  }
+}
+
+message HierarchyEntitySameTypes {
+  oneof data {
+    ScalarEntity first_entity = 1;
+    ScalarEntity second_entity = 2;
+  }
+}
 
 
 message EntityUuids {
@@ -49,22 +60,5 @@ message EntityUuids {
   bytes opt_uuid_bytes  = 4;
 }
 
-message NestedEntity {
-  Entity first = 1;
-  Entity second = 2;
-}
 
-message HierarchyEntity {
-  oneof data {
-    Entity first_entity = 1;
-    NestedEntity second_entity = 2;
-  }
-}
-
-message HierarchyEntitySameTypes {
-  oneof data {
-    Entity first_entity = 1;
-    Entity second_entity = 2;
-  }
-}
 

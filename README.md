@@ -12,13 +12,12 @@ This library:
  - changes the main way the macro is used and is interfaced with external traits
  - avoids the use of re implementing ProtoMap trait to client modules
  - is restructured to different crates 
- - contains extensive testing for edge cases
+ - contains excessive testing for edge cases
  - introduces ProtoScalar types
  - introduces ProtoScalarMap trait for protobuf scalar types
  - handles enumeration protobuf generation code automatically
  - handles option values via scanning the types of the applied struct and chooses different implementation paths
- - supports prost (WIP)
-
+ - supports prost
 
 
 ### Related Projects

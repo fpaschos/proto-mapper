@@ -19,15 +19,18 @@ members = ["proto-mapper-core", "proto-mapper-derive"]
 [dependencies]
 proto-mapper-derive = { path = "proto-mapper-derive" }
 anyhow = "1.0.75"
-uuid = { version = "1.4.1", features = ["v4"] }
 
 
 [dev-dependencies]
 prost = "0.12.1"
 protobuf = "3.3.0"
-
+uuid = { version = "1.5.0", features = ["v4"] }
 
 
 [build-dependencies]
 protobuf-codegen = "3.3.0"
 prost-build = "0.12.1"
+
+[features]
+prost = ["proto-mapper-derive/prost"]
+protobuf = ["proto-mapper-derive/protobuf"]

@@ -18,4 +18,6 @@ proc-macro = true
 [dependencies]
 proto-mapper-core = { path = "../proto-mapper-core" }
 
-
+[features]
+prost = ["proto-mapper-core/prost"]
+protobuf = ["proto-mapper-core/protobuf"]

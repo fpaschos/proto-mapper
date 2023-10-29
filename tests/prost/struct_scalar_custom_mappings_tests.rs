@@ -1,10 +1,11 @@
+use crate::proto;
 use proto_mapper::derive::ProtoMap;
-use proto_mapper::{uuid_as_bytes, uuid_as_string, ProtoMap, ProtoScalar};
+use proto_mapper::{ProtoMap, ProtoMapScalar, ProtoScalar};
+use super::custom_mappings::{uuid_as_bytes, uuid_as_string};
 use uuid::Uuid;
 
-mod proto;
 #[derive(Debug, ProtoMap, Eq, PartialEq)]
-#[proto_map(source = "proto::protobuf::EntityUuids")]
+#[proto_map(source = "proto::prost::EntityUuids")]
 struct EntityUuids {
     #[proto_map(scalar, with = "uuid_as_string")]
     uuid_str: Uuid,
@@ -33,7 +34,7 @@ fn entity_round_trip() {
 
 #[test]
 fn proto_entity_round_trip() {
-    let original = proto::protobuf::EntityUuids {
+    let original = proto::prost::EntityUuids {
         uuid_str: Uuid::new_v4().to_string(),
         opt_uuid_str: Uuid::new_v4().to_string(),
         uuid_bytes: Uuid::new_v4().as_bytes().to_vec(),
@@ -67,7 +68,7 @@ fn entity_optional_missing_round_trip() {
 
 #[test]
 fn proto_entity_optional_missing_round_trip() {
-    let original = proto::protobuf::EntityUuids {
+    let original = proto::prost::EntityUuids {
         uuid_str: Uuid::new_v4().to_string(),
         uuid_bytes: Uuid::new_v4().as_bytes().to_vec(),
         ..Default::default()

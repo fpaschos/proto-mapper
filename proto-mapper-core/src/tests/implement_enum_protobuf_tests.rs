@@ -36,10 +36,10 @@ fn implement_enumeration_test() {
 
             fn from_proto(proto: Self::ProtoStruct) -> std::result::Result<Self, anyhow::Error> {
                  match proto {
-                            proto::EntityStatus::STATUS_A => Ok(Self::StatusA),
-                            proto::EntityStatus::STATUS_B => Ok(Self::StatusB),
-                            proto::EntityStatus::STATUS_C => Ok(Self::StatusC),
-                        }
+                        proto::EntityStatus::STATUS_A => Ok(Self::StatusA),
+                        proto::EntityStatus::STATUS_B => Ok(Self::StatusB),
+                        proto::EntityStatus::STATUS_C => Ok(Self::StatusC),
+                    }
             }
         }
     };
