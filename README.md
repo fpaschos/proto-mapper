@@ -17,7 +17,7 @@ This library:
  - introduces ProtoScalarMap trait for protobuf scalar types
  - handles enumeration protobuf generation code automatically
  - handles option values via scanning the types of the applied struct and chooses different implementation paths
- - supports prost (WIP)
+ - supports prost
 
 
 ### Related Projects
