@@ -1,6 +1,5 @@
 use crate::proto;
 use proto_mapper::{ProtoMap, ProtoMapScalar, ProtoScalar};
-use crate::proto::prost::hierarchy_entity::Data;
 
 /// Fully expanded and manual experiments (these used to build the macros and the library traits synergy)
 #[derive(Debug, Clone, Copy, Default, PartialEq)]

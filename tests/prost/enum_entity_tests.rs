@@ -47,8 +47,8 @@ enum EntityStatus {
 fn enumeration_round_trips() {
     let original = EntityStatus::StatusA;
 
-    let p = original.to_proto();
-    let tested = EntityStatus::from_proto(p).unwrap();
+    let p = original.to_scalar();
+    let tested = EntityStatus::from_scalar(p).unwrap();
     assert_eq!(tested, original);
 }
 
