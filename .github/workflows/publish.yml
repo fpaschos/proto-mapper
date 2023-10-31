@@ -7,6 +7,10 @@ on:
       - '*'           # Push events to every tag not containing /
   workflow_dispatch:
 
+env:
+  CARGO_TERM_COLOR: always
+  PROTOC_VERSION: 3.20.3
+
 jobs:
   publish:
     runs-on: ${{ matrix.os }}
