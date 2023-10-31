@@ -30,21 +30,21 @@ jobs:
       env:
         CRATES_IO_TOKEN: ${{ secrets.crates_io_token }}
 
-#    - name: Dry run publish proto-mapper-core
-#      run: cargo publish --dry-run --manifest-path Cargo.toml -p proto-mapper-core --features protobuf
-#
-#    - name: Publish crate proto-mapper-core
-#      run: cargo publish --manifest-path Cargo.toml -p proto-mapper-core --features protobuf
-#      env:
-#        CARGO_REGISTRY_TOKEN: ${{ secrets.crates_io_token }}
-#
-#    - name: Dry run publish proto-mapper-derive
-#      run: cargo publish --dry-run --manifest-path Cargo.toml -p proto-mapper-derive --features protobuf
-#
-#    - name: Publish crate proto-mapper-derive
-#      run: cargo publish --manifest-path Cargo.toml -p proto-mapper-derive --features protobuf
-#      env:
-#        CARGO_REGISTRY_TOKEN: ${{ secrets.crates_io_token }}
+    - name: Dry run publish proto-mapper-core
+      run: cargo publish --dry-run --manifest-path Cargo.toml -p proto-mapper-core --features protobuf
+
+    - name: Publish crate proto-mapper-core
+      run: cargo publish --manifest-path Cargo.toml -p proto-mapper-core --features protobuf
+      env:
+        CARGO_REGISTRY_TOKEN: ${{ secrets.crates_io_token }}
+
+    - name: Dry run publish proto-mapper-derive
+      run: cargo publish --dry-run --manifest-path Cargo.toml -p proto-mapper-derive --features protobuf
+
+    - name: Publish crate proto-mapper-derive
+      run: cargo publish --manifest-path Cargo.toml -p proto-mapper-derive --features protobuf
+      env:
+        CARGO_REGISTRY_TOKEN: ${{ secrets.crates_io_token }}
 
     ## TODO conditional build.rs for feature protobuf and prost
 
