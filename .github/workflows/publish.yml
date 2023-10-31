@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest ]
-        rust: [ stable ]
+        toolchain: [ stable ]
     steps:
     - uses: actions/checkout@v3
     - name: Install toolchain (${{ matrix.toolchain }})
