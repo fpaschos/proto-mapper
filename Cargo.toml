@@ -1,5 +1,5 @@
 [package]
-version = "0.1.0"
+version = "0.1.1"
 name = "proto-mapper"
 description = "A Macro library for easier mapping between custom models and proto generated code"
 repository = "https://github.com/fpaschos/proto-mapper"
@@ -18,7 +18,7 @@ resolver = "2"
 members = ["proto-mapper-core", "proto-mapper-derive"]
 
 [dependencies]
-proto-mapper-derive = { path = "proto-mapper-derive", version = "0.1.0"}
+proto-mapper-derive = { path = "proto-mapper-derive", version = "0.1.1"}
 anyhow = "1.0.75"
 
 
