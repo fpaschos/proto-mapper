@@ -19,7 +19,7 @@ jobs:
         include:
           - name: Test proto-mapper `protobuf` feature
           - package: proto-mapper
-          - flags: --F prost
+          - features: --features prost
           - test: --test all_test
     steps:
       - uses: actions/checkout@v3
@@ -35,4 +35,4 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --package ${{matrix.package}} ${{matrix.flags}} ${{matrix.test}}
+          args: --package ${{matrix.package}} ${{matrix.features}} ${{matrix.test}}
