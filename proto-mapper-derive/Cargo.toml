@@ -16,7 +16,7 @@ edition = "2021"
 proc-macro = true
 
 [dependencies]
-proto-mapper-core = { path = "../proto-mapper-core" }
+proto-mapper-core = { path = "../proto-mapper-core", version = "0.1.0" }
 
 [features]
 prost = ["proto-mapper-core/prost"]

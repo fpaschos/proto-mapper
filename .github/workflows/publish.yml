@@ -27,6 +27,12 @@ jobs:
         CRATES_IO_TOKEN: ${{ secrets.crates_io_token }}
 
     - name: Dry run publish proto-mapper
+      run: cargo publish --dry-run --manifest-path Cargo.toml -p proto-mapper-core
+
+    - name: Dry run publish proto-mapper
+      run: cargo publish --dry-run --manifest-path Cargo.toml -p proto-mapper-derive
+
+    - name: Dry run publish proto-mapper
       run: cargo publish --dry-run --manifest-path Cargo.toml -p proto-mapper
 #    - name: Publish crate prot-0mapper
 #      run: cargo publish --manifest-path Cargo.toml -p proto-mapper
