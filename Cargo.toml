@@ -4,6 +4,7 @@ name = "proto-mapper"
 description = "A Macro library for easier mapping between custom models and proto generated code"
 repository = "https://github.com/fpaschos/proto-mapper"
 readme = "README.md"
+license = "MIT"
 authors = ["Fotis Paschos"]
 keywords = ["macros", "protobuf", "prost"]
 categories = ["development-tools", "rust-patterns"]
