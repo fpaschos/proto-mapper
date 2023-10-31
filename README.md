@@ -1,4 +1,6 @@
 ### Proto Mapper
+[![CI/main](https://github.com/fpaschos/proto-mapper/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/fpaschos/proto-mapper/actions/workflows/ci.yml)
+
 Macro implementation library for mapping between custom models and protobuf generated code
 
 #### Notice
