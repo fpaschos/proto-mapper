@@ -5,18 +5,22 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  PROTOC_VERSION: 3.20.3
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - name: Install rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           override: true
+      - name: Install protoc
+        uses: taiki-e/install-action@v2
+        with:
+          tool: protoc@${{ env.PROTOC_VERSION }}
       - name: Test proto-mapper for protobuf
         uses: actions-rs/cargo@v1
         with:
