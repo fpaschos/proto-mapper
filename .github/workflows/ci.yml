@@ -16,23 +16,23 @@ jobs:
         toolchain:
           - stable
           - "1.72"
-        include:
+        test:
           - name: Test proto-mapper-core `protobuf` feature
             package: proto-mapper
             features: --features protobuf
-            # test:
+            # tests:
           - name: Test proto-mapper-core `prost` feature
             package: proto-mapper
             features: --features prost
-            # test:
+            # tests:
           - name: Test proto-mapper `protobuf` feature
             package: proto-mapper
             features: --features protobuf
-            test: --test all_tests
+            tests: --test all_tests
           - name: Test proto-mapper `prost` feature
             package: proto-mapper
             features: --features prost
-            test: --test all_tests
+            tests: --test all_tests
     steps:
       - uses: actions/checkout@v3
       - name: Install toolchain (${{ matrix.toolchain }})
@@ -43,8 +43,8 @@ jobs:
         uses: taiki-e/install-action@v2
         with:
           tool: protoc@${{ env.PROTOC_VERSION }}
-      - name: ${{matrix.name}}
+      - name: ${{matrix.test.name}}
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --package ${{matrix.package}} ${{matrix.features}} ${{matrix.test}}
+          args: --package ${{matrix.test.package}} ${{matrix.test.features}} ${{matrix.test.tests}}
