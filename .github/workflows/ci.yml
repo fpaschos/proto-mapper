@@ -12,12 +12,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup rust
+      - name: Install rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           override: true
-        run: cargo build --verbose
       - name: Test proto-mapper for protobuf
         uses: actions-rs/cargo@v1
         with:
