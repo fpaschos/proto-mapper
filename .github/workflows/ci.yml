@@ -17,10 +17,22 @@ jobs:
           - stable
           - "1.72"
         include:
+          - name: Test proto-mapper-core `protobuf` feature
+            package: proto-mapper
+            features: --features protobuf
+            # test:
+          - name: Test proto-mapper-core `prost` feature
+            package: proto-mapper
+            features: --features prost
+            # test:
           - name: Test proto-mapper `protobuf` feature
-          - package: proto-mapper
-          - features: --features prost
-          - test: --test all_test
+            package: proto-mapper
+            features: --features protobuf
+            test: --test all_tests
+          - name: Test proto-mapper `prost` feature
+            package: proto-mapper
+            features: --features prost
+            test: --test all_tests
     steps:
       - uses: actions/checkout@v3
       - name: Install toolchain (${{ matrix.toolchain }})
