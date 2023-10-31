@@ -13,9 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        toolchain:
-          - stable
-          - "1.72"
+        toolchain: [stable, "1.72"]
         test:
           - name: Test proto-mapper-core `protobuf` feature
             package: proto-mapper

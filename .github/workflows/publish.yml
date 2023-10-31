@@ -1,0 +1,34 @@
+name: Publish
+
+on:
+  push:
+    # Pattern matched against refs/tags
+    tags:
+      - '*'           # Push events to every tag not containing /
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        rust: [ stable ]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install toolchain (${{ matrix.toolchain }})
+      uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: ${{ matrix.toolchain }}
+
+    - name: Login to crates.io
+      run: cargo login $CRATES_IO_TOKEN
+      env:
+        CRATES_IO_TOKEN: ${{ secrets.crates_io_token }}
+
+    - name: Dry run publish proto-mapper
+      run: cargo publish --dry-run --manifest-path Cargo.toml -p proto-mapper
+#    - name: Publish crate prot-0mapper
+#      run: cargo publish --manifest-path Cargo.toml -p proto-mapper
+#      env:
+#        CARGO_REGISTRY_TOKEN: ${{ secrets.crates_io_token }}
