@@ -10,19 +10,29 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain:
+          - stable
+          - "1.72"
+        include:
+          - name: Test proto-mapper `protobuf` feature
+          - package: proto-mapper
+          - flags: --F prost
+          - test: --test all_test
     steps:
       - uses: actions/checkout@v3
-      - name: Install rust
-        uses: actions-rs/toolchain@v1
+      - name: Install toolchain (${{ matrix.toolchain }})
+        uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: stable
-          override: true
+          toolchain: ${{ matrix.toolchain }}
       - name: Install protoc
         uses: taiki-e/install-action@v2
         with:
           tool: protoc@${{ env.PROTOC_VERSION }}
-      - name: Test proto-mapper for protobuf
+      - name: ${{matrix.name}}
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --features prost --package proto-mapper --test all_tests
+          args: --package ${{matrix.package}} ${{matrix.flags}} ${{matrix.test}}
