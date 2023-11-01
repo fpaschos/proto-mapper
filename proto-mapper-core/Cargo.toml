@@ -1,5 +1,5 @@
 [package]
-version = "0.1.1"
+version = "0.1.2"
 name = "proto-mapper-core"
 description = "Internal helper library for proto-mapper"
 repository = "https://github.com/fpaschos/proto-mapper"
