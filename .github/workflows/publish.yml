@@ -46,8 +46,6 @@ jobs:
       env:
         CARGO_REGISTRY_TOKEN: ${{ secrets.crates_io_token }}
 
-    ## TODO conditional build.rs for feature protobuf and prost
-
     - name: Dry run publish proto-mapper
       run: cargo publish  --dry-run --manifest-path Cargo.toml -p proto-mapper --features protobuf
 
