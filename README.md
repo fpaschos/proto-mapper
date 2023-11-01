@@ -1,14 +1,14 @@
-## Proto Mapper
+# Proto Mapper
 [![CI/main](https://github.com/fpaschos/proto-mapper/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/fpaschos/proto-mapper/actions/workflows/ci.yml)
 
 Macro implementation library for mapping between custom models and protobuf generated code
 
-### Notice
+## Notice
 This library is an (almost) complete rewrite of the [protobuf-convert](https://github.com/aleksuss/protobuf-convert/blob/master/README.md) library.
 The purpose of the rewrite is to adapt it to specific needs of our projects.
 The main concept and the idea remains the same, so the credit goes to the original authors of the `protobuf-convert` library.
 
-### What changed
+## What changed
 This library:
 - changes the main name of the macro to `ProtoMap`
 - changes the main way the macro is used and is interfaced with external traits
@@ -21,7 +21,7 @@ This library:
 - handles option values via scanning the types of the applied struct and chooses different implementation paths
 - supports prost
 
-### Install
+## Install
 
 First, add the dependency in `Cargo.toml`:
 
@@ -38,12 +38,12 @@ proto-mapper = {version = "0.1.2", features = ["prost"] }
 __NOTE__: Features `prost` or `protobuf` are __mutually exclusive and required__.
 Use one of them according to targeted generated code proto framework that you use
 
-### Usage
+## Usage
 
 A proof of concept that demonstrates the use of this library can be found [here](https://github.com/fpaschos/rust-kafka-debezium-demo/blob/main/claims-model/src/model/mod.rs). 
 Keep in mind that the PoC is still work in progress.
 
-##### Mapping scalar values and enumerations
+### Mapping scalar values and enumerations
 Given the protobuf enumeration and message
 ```protobuf
 syntax = "proto3";
@@ -118,7 +118,7 @@ let e = ScalarEntity::from_proto(p)?;
 Note that the mapping code for the enumeration requires `#[proto_map(..., enumeration)]` attribute on the rust enumeration
 and also needs to mark the field inside the `ScalarEntity` as well.
 
-##### Mapping optional scalar values and enumerations
+### Mapping optional scalar values and enumerations
 Given the same proto file. Out of the box you can map to optional values
 
 That is:
@@ -142,7 +142,7 @@ struct ScalarEntityOptions {
 ```
 The macro scans  the types of the custom struct that annotates and chooses different implementation paths for the conversion code.
 
-##### Mapping non scalar values
+### Mapping non scalar values
 
 Given the proto file 
 ```protobuf
@@ -167,7 +167,7 @@ struct NestedEntity {
 }
 ```
 
-##### Mapping non scalar `oneof` field to rust enumeration
+### Mapping non scalar `oneof` field to rust enumeration
 You can map top level `oneof` protobuf fields as follows
 
 Given the proto file
@@ -199,25 +199,27 @@ enum HierarchyEntity {
 ```
 
 Note that the `rename_variants` attribute may take two values `snake_case` and `STREAMING_SNAKE_CASE` according to the target generated struct.
-##### Custom mapping scalar values
+### Custom mapping scalar values
 TODO
 
-### Differences between `prost` and `protobuf` usage
+## Differences between `prost` and `protobuf` usage
 TODO
 
-### How it works
+## How it works
 TODO
 
-### Limitations
+## Limitations
 TODO
 
 
 
 
-### Related Projects
+## Related Projects
 - [Github: protobuf-convert](https://github.com/aleksuss/protobuf-convert/blob/master/README.md)
+- [Github: rust-protobuf](https://github.com/stepancheg/rust-protobuf)
+- [Github: prost](https://github.com/tokio-rs/prost)
 
-#### Resources
+### Resources
 - [The little book of Rust Macros](https://veykril.github.io/tlborm/introduction.html)
 - [The Rust reference](https://doc.rust-lang.org/reference/introduction.html)
 - [How to write hygienic macros](https://gist.github.com/Kestrer/8c05ebd4e0e9347eb05f265dfb7252e1)
