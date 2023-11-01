@@ -1,5 +1,7 @@
 # Proto Mapper
+[<img alt="github" src="https://img.shields.io/badge/github-fpaschos/proto-mapper?style=for-the-badge&labelColor=555555&logo=github" height="20">](https://github.com/fpaschos/proto-mapper)
 [![CI/main](https://github.com/fpaschos/proto-mapper/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/fpaschos/proto-mapper/actions/workflows/ci.yml)
+[<img alt="crates.io" src="https://img.shields.io/crates/v/proto-mapper.svg?style=for-the-badge&color=fc8d62&logo=rust" height="20">](https://crates.io/crates/proto-mapper)
 
 Macro implementation library for mapping between custom models and protobuf generated code
 
