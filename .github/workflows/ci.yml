@@ -16,11 +16,11 @@ jobs:
         toolchain: [stable, "1.72"]
         test:
           - name: Test proto-mapper-core `protobuf` feature
-            package: proto-mapper
+            package: proto-mapper-core
             features: --features protobuf
             # tests:
           - name: Test proto-mapper-core `prost` feature
-            package: proto-mapper
+            package: proto-mapper-core
             features: --features prost
             # tests:
           - name: Test proto-mapper `protobuf` feature
