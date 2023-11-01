@@ -40,6 +40,9 @@ Use one of them according to targeted generated code proto framework that you us
 
 ### Usage
 
+A proof of concept that demonstrates the use of this library can be found [here](https://github.com/fpaschos/rust-kafka-debezium-demo/blob/main/claims-model/src/model/mod.rs). 
+Keep in mind that the PoC is still work in progress.
+
 ##### Mapping scalar values and enumerations
 Given the protobuf enumeration and message
 ```protobuf
@@ -165,13 +168,50 @@ struct NestedEntity {
 ```
 
 ##### Mapping non scalar `oneof` field to rust enumeration
+You can map top level `oneof` protobuf fields as follows
 
+Given the proto file
+```protobuf
+syntax = "proto3";
 
+// ... definitions of ScalarEntity
 
+message HierarchyEntity {
+  oneof data {
+    ScalarEntity first_entity = 1;
+    NestedEntity second_entity = 2;
+  }
+}
+```
 
+Then one implementation of the custom struct may be
+```rust 
+#[derive(Debug, ProtoMap, PartialEq)]
+#[proto_map(
+    source = "proto::HierarchyEntity",
+    one_of(field = "data"),
+    rename_variants = "snake_case"
+)]
+enum HierarchyEntity {
+    FirstEntity(ScalarEntity),
+    SecondEntity(NestedEntity),
+}
+```
+
+Note that the `rename_variants` attribute may take two values `snake_case` and `STREAMING_SNAKE_CASE` according to the target generated struct.
+##### Custom mapping scalar values
+TODO
+
+### Differences between `prost` and `protobuf` usage
+TODO
 
 ### How it works
 TODO
+
+### Limitations
+TODO
+
+
 
 
 ### Related Projects
